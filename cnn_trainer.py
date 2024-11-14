@@ -103,7 +103,7 @@ if '__main__' == __name__: # for importing this module in other modules
     print(f"Classes: {dataset.classes}")
     print(f"Total samples: {len(dataset)}")
 
-    num_epochs = 100 
+    num_epochs = 50 
 
     # Training loop
     for epoch in range(num_epochs):
@@ -150,4 +150,4 @@ if '__main__' == __name__: # for importing this module in other modules
     'final_accuracy': accuracy,
     }, f'CNN_model_1_final_{times}.pth')
 
-    print(f"Best accuracy achieved: {accuracy:.2f}%")
+    print(f"Best accuracy: {accuracy:.2f}%")
