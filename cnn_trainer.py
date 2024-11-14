@@ -148,6 +148,6 @@ if '__main__' == __name__: # for importing this module in other modules
     'model_state_dict': model.state_dict(),
     'optimizer_state_dict': optimizer.state_dict(),
     'final_accuracy': accuracy,
-    }, f'CNN_model_final_{times}.pth')
+    }, f'CNN_model_1_final_{times}.pth')
 
     print(f"Best accuracy achieved: {accuracy:.2f}%")
