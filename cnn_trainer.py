@@ -91,7 +91,7 @@ if '__main__' == __name__: # for importing this module in other modules
     ])
 
     # Set data set directory
-    data_dir = 'data_for_model_1/'
+    data_dir = 'data_for_model_1/train/'
 
     # Load data set
     dataset = datasets.ImageFolder(data_dir,transform=matrix_converter)
