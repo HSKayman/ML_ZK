@@ -48,12 +48,12 @@ class CNN(nn.Module):
         # Calculate flattened size: 64 * 3 * 3 = 576
         self.classifier = nn.Sequential(
             nn.Dropout(),
-            nn.Linear(64 * 3 * 3, 256),  # 3136 -> 512
+            nn.Linear(64 * 3 * 3, 256),  # 3136 -> 256
             nn.ReLU(inplace=True),
             nn.Dropout(),
-            nn.Linear(256, 64),
+            nn.Linear(256, 64), # 256 -> 64
             nn.ReLU(inplace=True),
-            nn.Linear(64, num_classes),
+            nn.Linear(64, num_classes), # 64 -> 2
         )
 
     def forward(self, x):
