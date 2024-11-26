@@ -46,16 +46,25 @@ class CNN(nn.Module):
         )
         
         # Calculate flattened size: 64 * 3 * 3 = 576
+        # self.classifier = nn.Sequential(
+        #     nn.Dropout(),
+        #     nn.Linear(64 * 3 * 3, 256),  # 576 -> 256
+        #     nn.ReLU(inplace=True),
+        #     nn.Dropout(),
+        #     nn.Linear(256, 64), # 256 -> 64
+        #     nn.ReLU(inplace=True),
+        #     nn.Linear(64, num_classes), # 64 -> 2
+        # )
+
         self.classifier = nn.Sequential(
             nn.Dropout(),
-            nn.Linear(64 * 3 * 3, 256),  # 3136 -> 256
-            nn.ReLU(inplace=True),
+            nn.Linear(64 * 3 * 3, 64),  # 576 -> 64
+            nn.Sigmoid(),
             nn.Dropout(),
-            nn.Linear(256, 64), # 256 -> 64
-            nn.ReLU(inplace=True),
-            nn.Linear(64, num_classes), # 64 -> 2
+            nn.Linear(64, 8), # 64 -> 8
+            nn.Sigmoid(),
+            nn.Linear(8, num_classes), # 8 -> 2
         )
-
     def forward(self, x):
         # Convolutional layers
         x = self.features(x)
@@ -89,16 +98,18 @@ if '__main__' == __name__: # for importing this module in other modules
         transforms.Resize((224, 224)),                  # Resize to desired dimensions
         transforms.ToTensor()    
     ])
-
+    model_number = 1
     # Set data set directory
-    data_dir = 'data_for_model_2/train/'
+    data_dir = f'data_for_model_{model_number}/train/'
+    test_dir = f'data_for_model_{model_number}/test/'
 
     # Load data set
     dataset = datasets.ImageFolder(data_dir,transform=matrix_converter)
+    test_dataset = datasets.ImageFolder(test_dir,transform=matrix_converter)
 
     batch_size = 32
     train_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=4, pin_memory=True)
-    
+    test_loader = DataLoader(test_dataset, shuffle=False, num_workers=4, pin_memory=True)
     print(f"Noof classes: {len(dataset.classes)}")
     print(f"Classes: {dataset.classes}")
     print(f"Total samples: {len(dataset)}")
@@ -130,8 +141,24 @@ if '__main__' == __name__: # for importing this module in other modules
             if (batch_idx + 1) % 10 == 0:
                 print(f"Epoch [{epoch + 1}/{num_epochs}], "
                       f"Batch [{batch_idx + 1}/{len(train_loader)}], "
-                      f"Loss: {loss.item():.4f}")
-                
+                      f"Loss: {loss.item():.4f}") 
+        model.eval()  # Set the model to evaluation mode
+        with torch.no_grad():  # No need to calculate gradients during evaluation
+            test_loss = 0.0
+            test_correct = 0
+            for test_images, test_targets in test_loader:
+                test_predictions = model(test_images)
+                loss = loss_func(test_predictions, test_targets)
+                test_loss += loss.item()
+                _, predicted = torch.max(test_predictions.data, 1)
+                test_correct += (predicted == test_targets).sum().item()
+
+            avg_test_loss = test_loss / len(test_dataset)
+            test_accuracy = 100 * test_correct / len(test_dataset)
+            print(f"Test Loss: {avg_test_loss:.4f}")
+            print(f"Test Accuracy: {test_accuracy:.2f}%")
+
+        print("-" * 30)    
         # print average loss for the epoch
         avg_loss = total_loss / len(dataset)
         accuracy = 100 * correct / len(dataset)
@@ -148,6 +175,6 @@ if '__main__' == __name__: # for importing this module in other modules
     'model_state_dict': model.state_dict(),
     'optimizer_state_dict': optimizer.state_dict(),
     'final_accuracy': accuracy,
-    }, f'CNN_model_2_final_{times}.pth')
+    }, f'CNN_model_{model_number}_final_{times}.pth')
 
     print(f"Best accuracy: {accuracy:.2f}%")
