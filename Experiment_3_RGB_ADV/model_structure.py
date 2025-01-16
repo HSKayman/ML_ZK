@@ -17,7 +17,7 @@ class BCNN(nn.Module):
             # First convolutional block
             # Input: [B, 3, 224, 224]
             nn.Conv2d(input_channels, 32, kernel_size=3, padding=1),  # Output: [B, 32, 224, 224]
-            nn.BatchNorm2d(32),                                       # Output: [B, 32, 224, 224]
+            # nn.BatchNorm2d(32),                                       # Output: [B, 32, 224, 224]
             nn.ReLU(inplace=True),                                    # Output: [B, 32, 224, 224]
             nn.MaxPool2d(kernel_size=2, stride=2),                    # Output: [B, 32, 112, 112]
             nn.Dropout2d(0.25),                                       # Output: [B, 32, 112, 112]
@@ -25,7 +25,7 @@ class BCNN(nn.Module):
             # Second convolutional block
             # Input: [B, 32, 112, 112]
             nn.Conv2d(32, 64, kernel_size=3, padding=1),             # Output: [B, 64, 112, 112]
-            nn.BatchNorm2d(64),                                      # Output: [B, 64, 112, 112]
+            # nn.BatchNorm2d(64),                                      # Output: [B, 64, 112, 112]
             nn.ReLU(inplace=True),                                   # Output: [B, 64, 112, 112]
             nn.MaxPool2d(kernel_size=2, stride=2),                   # Output: [B, 64, 56, 56]
             nn.Dropout2d(0.25),                                      # Output: [B, 64, 56, 56]
@@ -33,7 +33,7 @@ class BCNN(nn.Module):
             # Third convolutional block
             # Input: [B, 64, 56, 56]
             nn.Conv2d(64, 128, kernel_size=3, padding=1),           # Output: [B, 128, 56, 56]
-            nn.BatchNorm2d(128),                                    # Output: [B, 128, 56, 56]
+            # nn.BatchNorm2d(128),                                    # Output: [B, 128, 56, 56]
             nn.ReLU(inplace=True),                                  # Output: [B, 128, 56, 56]
             nn.MaxPool2d(kernel_size=2, stride=2),                  # Output: [B, 128, 28, 28]
             nn.Dropout2d(0.25),                                     # Output: [B, 128, 28, 28]
@@ -52,27 +52,27 @@ class BCNN(nn.Module):
 
     def forward(self, x):
         x = self.features(x)
-        x = torch.squeeze(x)
+        # x = torch.squeeze(x)
         x = self.classifier(x)
         return x
 
 # Data Preprocessing
-def get_preprocessing_transforms(input_size=64):
+def get_preprocessing_transforms(input_size=224):
     train_transform = transforms.Compose([
         transforms.Resize((input_size, input_size)),
         transforms.RandomHorizontalFlip(),
         transforms.RandomRotation(10),
         transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2),
         transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                           std=[0.229, 0.224, 0.225])
+        # transforms.Normalize(mean=[0.485, 0.456, 0.406],
+        #                    std=[0.229, 0.224, 0.225])
     ])
 
     val_transform = transforms.Compose([
         transforms.Resize((input_size, input_size)),
         transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                           std=[0.229, 0.224, 0.225])
+        # transforms.Normalize(mean=[0.485, 0.456, 0.406],
+        #                    std=[0.229, 0.224, 0.225])
     ])
     
     return train_transform, val_transform
