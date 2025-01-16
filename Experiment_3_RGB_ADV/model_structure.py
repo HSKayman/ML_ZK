@@ -15,39 +15,44 @@ class BCNN(nn.Module):
         # Feature extraction layers
         self.features = nn.Sequential(
             # First convolutional block
-            nn.Conv2d(input_channels, 32, kernel_size=3, padding=1),
-            nn.BatchNorm2d(32),
-            nn.ReLU(inplace=True),
-            nn.MaxPool2d(kernel_size=2, stride=2),
-            nn.Dropout2d(0.25),
+            # Input: [B, 3, 224, 224]
+            nn.Conv2d(input_channels, 32, kernel_size=3, padding=1),  # Output: [B, 32, 224, 224]
+            nn.BatchNorm2d(32),                                       # Output: [B, 32, 224, 224]
+            nn.ReLU(inplace=True),                                    # Output: [B, 32, 224, 224]
+            nn.MaxPool2d(kernel_size=2, stride=2),                    # Output: [B, 32, 112, 112]
+            nn.Dropout2d(0.25),                                       # Output: [B, 32, 112, 112]
             
             # Second convolutional block
-            nn.Conv2d(32, 64, kernel_size=3, padding=1),
-            nn.BatchNorm2d(64),
-            nn.ReLU(inplace=True),
-            nn.MaxPool2d(kernel_size=2, stride=2),
-            nn.Dropout2d(0.25),
+            # Input: [B, 32, 112, 112]
+            nn.Conv2d(32, 64, kernel_size=3, padding=1),             # Output: [B, 64, 112, 112]
+            nn.BatchNorm2d(64),                                      # Output: [B, 64, 112, 112]
+            nn.ReLU(inplace=True),                                   # Output: [B, 64, 112, 112]
+            nn.MaxPool2d(kernel_size=2, stride=2),                   # Output: [B, 64, 56, 56]
+            nn.Dropout2d(0.25),                                      # Output: [B, 64, 56, 56]
             
             # Third convolutional block
-            nn.Conv2d(64, 128, kernel_size=3, padding=1),
-            nn.BatchNorm2d(128),
-            nn.ReLU(inplace=True),
-            nn.MaxPool2d(kernel_size=2, stride=2),
-            nn.Dropout2d(0.25),
+            # Input: [B, 64, 56, 56]
+            nn.Conv2d(64, 128, kernel_size=3, padding=1),           # Output: [B, 128, 56, 56]
+            nn.BatchNorm2d(128),                                    # Output: [B, 128, 56, 56]
+            nn.ReLU(inplace=True),                                  # Output: [B, 128, 56, 56]
+            nn.MaxPool2d(kernel_size=2, stride=2),                  # Output: [B, 128, 28, 28]
+            nn.Dropout2d(0.25),                                     # Output: [B, 128, 28, 28]
         )
         
         # Classifier layers
         self.classifier = nn.Sequential(
-            nn.Flatten(),
-            nn.Linear(128 * 4 * 4, 512),  # Adjust according to your input size
-            nn.ReLU(inplace=True),
-            nn.Dropout(0.5),
-            nn.Linear(512, 1),
-            nn.Sigmoid()
+            # Input: [B, 128, 28, 28]
+            nn.Flatten(),                                           # Output: [B, 128 * 28 * 28] = [B, 100352]
+            nn.Linear(128 * 28 * 28, 512),                        # Output: [B, 512]
+            nn.ReLU(inplace=True),                                # Output: [B, 512]
+            nn.Dropout(0.5),                                      # Output: [B, 512]
+            nn.Linear(512, 1),                                    # Output: [B, 1]
+            nn.Sigmoid()                                          # Output: [B, 1] (probability between 0 and 1)
         )
 
     def forward(self, x):
         x = self.features(x)
+        x = torch.squeeze(x)
         x = self.classifier(x)
         return x
 
@@ -222,7 +227,7 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
         # Save best model
         if val_acc > best_val_acc:
             best_val_acc = val_acc
-            torch.save(model.state_dict(), f'best_model_{model_number}.pth')
+            torch.save(model.state_dict(), f'best_model_{model_number}_EP{epoch+1}.pth')
             
         # # Plot metrics every 5 epochs
         # if (epoch + 1) % 5 == 0:
