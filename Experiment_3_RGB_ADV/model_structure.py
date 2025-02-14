@@ -46,8 +46,7 @@ class BCNN(nn.Module):
             nn.Linear(128 * 28 * 28, 512),                        # Output: [B, 512]
             nn.ReLU(inplace=True),                                # Output: [B, 512]
             nn.Dropout(0.5),                                      # Output: [B, 512]
-            nn.Linear(512, 2),                                    # Output: [B, 2]
-            nn.Softmax(dim=1)                                     # Output: [B, 2] (probability between 0 and 1)
+            nn.Linear(512, 2),                                    # Output: [B, 2]                                  
         )
 
     def forward(self, x):
@@ -151,13 +150,14 @@ def evaluate_model(model, data_loader, device):
     with torch.no_grad():
         for inputs, labels in data_loader:
             inputs = inputs.to(device)
-            labels = labels.float().to(device)
+            labels = labels.long().to(device)
             
-            outputs = model(inputs).squeeze()
+            outputs = model(inputs)
             loss = criterion(outputs, labels)
             total_loss += loss.item()
             
-            predicted = (outputs > 0.5).float()
+            _, predicted = torch.max(outputs, 1)
+            predicted = (predicted == labels).sum().item()
             
             all_preds.extend(predicted.cpu().numpy())
             all_labels.extend(labels.cpu().numpy())
@@ -184,17 +184,17 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
         
         for inputs, labels in train_loader:
             inputs = inputs.to(device)
-            labels = labels.float().to(device)
+            labels = labels.long().to(device)
             
             optimizer.zero_grad()
-            outputs = model(inputs).squeeze()
+            outputs = model(inputs)
             loss = criterion(outputs, labels)
             
             loss.backward()
             optimizer.step()
             
             running_loss += loss.item()
-            predicted = (outputs > 0.5).float()
+            _, predicted = torch.max(outputs, 1)
             
             train_preds.extend(predicted.cpu().numpy())
             train_labels.extend(labels.cpu().numpy())
