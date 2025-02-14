@@ -46,12 +46,7 @@ class BCNN(nn.Module):
             nn.Linear(128 * 28 * 28, 512),                        # Output: [B, 512]
             nn.ReLU(inplace=True),                                # Output: [B, 512]
             nn.Dropout(0.5),                                      # Output: [B, 512]
-<<<<<<< HEAD
             nn.Linear(512, 2),                                    # Output: [B, 2]                                  
-=======
-            nn.Linear(512, 2),                                    # Output: [B, 2]
-            nn.Softmax(dim=1)                                     # Output: [B, 2] (probability between 0 and 1)
->>>>>>> c5c136d9379f8c7e7e1cc7ca6164d7c080095ab2
         )
 
     def forward(self, x):
@@ -150,7 +145,7 @@ def evaluate_model(model, data_loader, device):
     all_preds = []
     all_labels = []
     total_loss = 0
-    criterion = nn.BCELoss()
+    criterion = nn.CrossEntropyLoss()
     
     with torch.no_grad():
         for inputs, labels in data_loader:
