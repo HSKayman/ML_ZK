@@ -46,8 +46,8 @@ class BCNN(nn.Module):
             nn.Linear(128 * 28 * 28, 512),                        # Output: [B, 512]
             nn.ReLU(inplace=True),                                # Output: [B, 512]
             nn.Dropout(0.5),                                      # Output: [B, 512]
-            nn.Linear(512, 1),                                    # Output: [B, 1]
-            nn.Sigmoid()                                          # Output: [B, 1] (probability between 0 and 1)
+            nn.Linear(512, 2),                                    # Output: [B, 2]
+            nn.Softmax(dim=1)                                     # Output: [B, 2] (probability between 0 and 1)
         )
 
     def forward(self, x):
