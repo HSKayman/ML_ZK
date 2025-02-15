@@ -150,7 +150,7 @@ def evaluate_model(model, data_loader, device):
     with torch.no_grad():
         for inputs, labels in data_loader:
             inputs = inputs.to(device)
-            labels = labels.to(device)
+            labels = labels.long().to(device)
             
             outputs = model(inputs)
             loss = criterion(outputs, labels)
