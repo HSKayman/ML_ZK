@@ -1,2 +1,2 @@
 **/*.pth
-Experiment_3_RGB_ADV/model_comparison_results_on_dog.csv
+**/*.csv
