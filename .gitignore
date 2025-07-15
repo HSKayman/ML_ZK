@@ -1,3 +1,3 @@
 **/*.pth
 **/*.csv
-!Experiment_6_BG\activation_diff_results2.csv
+!Experiment_6_BG/activation_diff_results2.csv
