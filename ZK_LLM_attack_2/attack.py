@@ -214,7 +214,7 @@ print(f"Generated {len(X_data)} samples")
 # %%
 # Generate results
 print("Generating activation differences for Llama-2 layers...")
-results = generate_activation_differences_llama(model, X_data, n_samples=10, n_reconstructions=3)
+results = generate_activation_differences_llama(model, X_data, n_samples=20, n_reconstructions=3)
 #406m 40.9s
 
 # %%
