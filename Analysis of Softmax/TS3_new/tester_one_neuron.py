@@ -426,53 +426,92 @@ def select_neurons_per_token_position(activations1, activations2, selection_meth
             continue
         
         try:
-            if len(activation1.shape) == 3:  # [batch, seq_len, hidden_size]
-                batch_size, seq_len, hidden_size = activation1.shape
-                
-                if hidden_size == 0:
+            if layer_name == 'lm_head':
+                print(f"--> Applying special 'highest_probability' selection for '{layer_name}'")
+                if len(activation1.shape) != 3: # Expects [batch, seq_len, vocab_size]
+                    continue
+
+                batch_size, seq_len, vocab_size = activation1.shape
+                if vocab_size == 0:
                     continue
                 
-                # Select neurons for EACH token position separately
                 token_selections = {}
-                
                 for token_pos in range(seq_len):
-                    # Get activations for this specific token position
-                    token_act1 = activation1[0, token_pos, :]  # [hidden_size]
-                    token_act2 = activation2[0, token_pos, :]  # [hidden_size]
-                    
-                    # Calculate differences for this token
-                    diff = torch.abs(token_act1 - token_act2)
-                    
-                    # Select neuron based on method
-                    if selection_method == 'min_diff':
-                        neuron_idx = torch.argmin(diff).item()
-                    elif selection_method == 'max_diff':
-                        neuron_idx = torch.argmax(diff).item()
-                    elif selection_method == 'random':
-                        neuron_idx = np.random.randint(0, hidden_size)
-                    elif selection_method == 'high_activation':
-                        # Select neuron with highest activation in model 1
-                        neuron_idx = torch.argmax(torch.abs(token_act1)).item()
-                    else:
-                        neuron_idx = torch.argmin(diff).item()  # Default to min_diff
+                    # For lm_head, "neuron" is a token in the vocabulary.
+                    # We select the neuron corresponding to the token with the highest probability from model 1.
+                    logits_for_token_1 = activation1[0, token_pos, :]
+                    neuron_idx = torch.argmax(logits_for_token_1).item() # This is the predicted token ID
+
+                    act1_val = activation1[0, token_pos, neuron_idx].item()
+                    act2_val = activation2[0, token_pos, neuron_idx].item()
                     
                     token_selections[token_pos] = {
                         'neuron_index': neuron_idx,
-                        'difference': diff[neuron_idx].item(),
-                        'activation1_value': token_act1[neuron_idx].item(),
-                        'activation2_value': token_act2[neuron_idx].item(),
-                        'abs_activation1': abs(token_act1[neuron_idx].item()),
-                        'abs_activation2': abs(token_act2[neuron_idx].item()),
-                        'selection_method': selection_method
+                        'difference': act1_val - act2_val,
+                        'activation1_value': act1_val,
+                        'activation2_value': act2_val,
+                        'selection_method': 'highest_probability' 
                     }
-                
+
                 selected_neurons[layer_name] = {
                     'per_token_selections': token_selections,
                     'sequence_length': seq_len,
-                    'hidden_size': hidden_size,
+                    'hidden_size': vocab_size, 
                     'activation_shape': list(activation1.shape),
                     'layer_type': get_component_type(layer_name)
                 }
+            # ===================================================================
+            # END: SPECIAL LOGIC FOR THE OUTPUT LAYER
+            # START: ORIGINAL LOGIC FOR ALL OTHER LAYERS
+            # ===================================================================
+            else:
+                if len(activation1.shape) == 3:  # [batch, seq_len, hidden_size]
+                    batch_size, seq_len, hidden_size = activation1.shape
+                    
+                    if hidden_size == 0:
+                        continue
+                    
+                    # Select neurons for EACH token position separately
+                    token_selections = {}
+                    
+                    for token_pos in range(seq_len):
+                        # Get activations for this specific token position
+                        token_act1 = activation1[0, token_pos, :]  # [hidden_size]
+                        token_act2 = activation2[0, token_pos, :]  # [hidden_size]
+                        
+                        # Calculate differences for this token
+                        diff = torch.abs(token_act1 - token_act2)
+                        
+                        # Select neuron based on method
+                        if selection_method == 'min_diff':
+                            neuron_idx = torch.argmin(diff).item()
+                        elif selection_method == 'max_diff':
+                            neuron_idx = torch.argmax(diff).item()
+                        elif selection_method == 'random':
+                            neuron_idx = np.random.randint(0, hidden_size)
+                        elif selection_method == 'high_activation':
+                            # Select neuron with highest activation in model 1
+                            neuron_idx = torch.argmax(torch.abs(token_act1)).item()
+                        else:
+                            neuron_idx = torch.argmin(diff).item()  # Default to min_diff
+                        
+                        token_selections[token_pos] = {
+                            'neuron_index': neuron_idx,
+                            'difference': diff[neuron_idx].item(),
+                            'activation1_value': token_act1[neuron_idx].item(),
+                            'activation2_value': token_act2[neuron_idx].item(),
+                            'abs_activation1': abs(token_act1[neuron_idx].item()),
+                            'abs_activation2': abs(token_act2[neuron_idx].item()),
+                            'selection_method': selection_method
+                        }
+                    
+                    selected_neurons[layer_name] = {
+                        'per_token_selections': token_selections,
+                        'sequence_length': seq_len,
+                        'hidden_size': hidden_size,
+                        'activation_shape': list(activation1.shape),
+                        'layer_type': get_component_type(layer_name)
+                    }
                 
         except Exception as e:
             print(f"Error selecting neurons for {layer_name}: {e}")
