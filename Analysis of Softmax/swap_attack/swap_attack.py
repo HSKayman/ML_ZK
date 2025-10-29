@@ -131,9 +131,10 @@ def generate_activation_differences_llama(model, X_data, n_samples=5, n_reconstr
                 
                 embeddings_model_dtype = reconstructed_embeddings.to(model.dtype)
                 output = model(inputs_embeds=embeddings_model_dtype).logits
+                last_token_output = output[0, -1, :]
                 
                 # MODIFIED: Loss now matches the MALICIOUS target
-                loss = nn.functional.mse_loss(output.float(), malicious_target_logits.float())
+                loss = nn.functional.mse_loss(last_token_output.float(), malicious_target_logits.float())
                 
                 reg_loss = 0.001 * torch.mean(reconstructed_embeddings ** 2)
                 total_loss = loss + reg_loss
