@@ -93,7 +93,8 @@ def reconstruct_internal_state(model,
             # simplifying by using the previous layers output as input
             layer_output = layer(current_hidden_state, 
                                  position_ids=position_ids,
-                                 attention_mask=attention_mask)[0]
+                                 attention_mask=attention_mask,
+                                 use_cache=False)[0]
             
             # trainable guess for the input of layer `i+1`.
             consistency_loss = loss_function(layer_output.squeeze(), reconstructed_states[i])
