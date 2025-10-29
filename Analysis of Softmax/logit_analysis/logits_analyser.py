@@ -146,7 +146,7 @@ import sys
 def save_analysis_to_file(analysis_results, output_filename: str):
     print(f"\n--- Redirecting detailed analysis to '{output_filename}' ---")
     
-    # Save the current standard output
+    # Save the current standard output (the console)
     original_stdout = sys.stdout 
     
     try:
@@ -154,11 +154,13 @@ def save_analysis_to_file(analysis_results, output_filename: str):
         with open(output_filename, 'w') as f:
             sys.stdout = f
             print_analysis(analysis_results)
-        print(f"✅ Successfully saved detailed analysis to '{output_filename}'")
-        
     finally:
-        # Restore the original standard output (the console)
+        # **Crucially, restore the original standard output here.**
+        # This block runs after the 'try' block, guaranteeing restoration.
         sys.stdout = original_stdout
+
+    # Now that stdout is back to the console, this will print correctly.
+    print(f"✅ Successfully saved detailed analysis to '{output_filename}'")
 
 # %%
 def save_all_logits_for_last_token(prompt: str, 
@@ -206,8 +208,8 @@ def save_all_logits_for_last_token(prompt: str,
 # %%
 sample_texts = [
         "The capital of France is",
-        "The largest mammal on Earth is",
-        "The process of photosynthesis occurs in"
+        "The largest mammal on Earth is the",
+        "The process of photosynthesis occurs in the"
     ]
 
 
