@@ -562,7 +562,7 @@ def calculate_single_token_neuron(layer_name, neuron_idx, token_pos,
                 return {'error': 'Index out of bounds for layer norm'}
                 
             calc_1 = w1[neuron_idx].item() * token_input[neuron_idx].item()
-            calc_2 = w2[neuron_idx].item() * token_input[neuron_idx].item()
+            calc_2 = w1[neuron_idx].item() * token_input[neuron_idx].item()
             
             if b1 is not None and neuron_idx < b1.shape[0]:
                 calc_1 += b1[neuron_idx].item()
@@ -575,7 +575,7 @@ def calculate_single_token_neuron(layer_name, neuron_idx, token_pos,
                 return {'error': 'Neuron index out of bounds'}
                 
             calc_1 = torch.matmul(token_input, w1[neuron_idx, :]).item()
-            calc_2 = torch.matmul(token_input, w2[neuron_idx, :]).item()
+            calc_2 = torch.matmul(token_input, w1[neuron_idx, :]).item()
             
             if b1 is not None and neuron_idx < b1.shape[0]:
                 calc_1 += b1[neuron_idx].item()
