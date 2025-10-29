@@ -59,7 +59,12 @@ def create_malicious_output(tokenizer, original_logits):
     
     return malicious_target_logits.detach()
 
-def reconstruct_internal_state(model, original_hidden_states, malicious_target_logits, epoch=200, lr=0.01):
+def reconstruct_internal_state(model, 
+                               original_hidden_states, 
+                               malicious_target_logits,
+                               position_ids,
+                               attention_mask,
+                                 epoch=200, lr=0.01):
     # first hidden state is the input embedding
     input_embeddings = original_hidden_states[0].detach()
     
@@ -86,7 +91,9 @@ def reconstruct_internal_state(model, original_hidden_states, malicious_target_l
         # run the forward pass layer by layer
         for i, layer in enumerate(model.model.layers):
             # simplifying by using the previous layers output as input
-            layer_output = layer(current_hidden_state)[0]
+            layer_output = layer(current_hidden_state, 
+                                 position_ids=position_ids,
+                                 attention_mask=attention_mask)[0]
             
             # trainable guess for the input of layer `i+1`.
             consistency_loss = loss_function(layer_output.squeeze(), reconstructed_states[i])
@@ -165,6 +172,12 @@ PROMPT = "The capital of Turkey is"
 PROMPT = "My favorite color is"
 inputs = tokenizer(PROMPT, return_tensors="pt").to(DEVICE)
 
+sequence_length = inputs['input_ids'].shape[1]
+last_token_position = sequence_length - 1
+position_ids = torch.tensor([[last_token_position]], device=DEVICE, dtype=torch.long)
+# The attention mask for a single token is just [[1]]
+attention_mask = torch.ones((1, 1), dtype=torch.long, device=DEVICE)
+
 #STEP 1
 original_logits, original_hidden_states = get_original_activations_and_logits(model, inputs)
 malicious_target = create_malicious_output(tokenizer, original_logits)
@@ -174,6 +187,8 @@ reconstructed_hidden_states = reconstruct_internal_state(
     model,
     original_hidden_states,
     malicious_target,
+    position_ids,
+    attention_mask,
     epoch=250,
     lr=0.05
 )
