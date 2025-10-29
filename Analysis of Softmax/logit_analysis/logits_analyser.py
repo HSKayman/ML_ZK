@@ -12,10 +12,9 @@ from typing import Dict, List, Tuple, Optional
 import json
 import gc
 
-
 # %%
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-DEVICE
+print(f"Using device: {DEVICE}")
 
 # %%
 MODEL_1_PATH = "meta-llama/Llama-2-7b-chat-hf" 
@@ -26,11 +25,11 @@ tokenizer.pad_token = tokenizer.eos_token
 
 model = LlamaForCausalLM.from_pretrained(
     MODEL_1_PATH,
-    torch_dtype=torch.float16,  
+    torch_dtype=torch.float16,   
     device_map="auto"           
 )
 
-model.eval() # Set model to evaluation mode
+model.eval()
 
 # %%
 def analyze_prompt_logits(prompt: str, 
@@ -142,32 +141,98 @@ def print_analysis(analysis_results):
             word_str = f"'{pred['word']}'"
             print(f"{rank:<5} | {word_str:<15} | {pred['token_id']:<8} | {pred['logit']:<10.4f} | {pred['probability']:<10.4f}")
 
+# %%
+import sys
+def save_analysis_to_file(analysis_results, output_filename: str):
+    print(f"\n--- Redirecting detailed analysis to '{output_filename}' ---")
+    
+    # Save the current standard output
+    original_stdout = sys.stdout 
+    
+    try:
+        # Redirect standard output to the file
+        with open(output_filename, 'w') as f:
+            sys.stdout = f
+            print_analysis(analysis_results)
+        print(f"✅ Successfully saved detailed analysis to '{output_filename}'")
+        
+    finally:
+        # Restore the original standard output (the console)
+        sys.stdout = original_stdout
 
 # %%
-prompt_to_analyze = "The capital of France is"
+def save_all_logits_for_last_token(prompt: str, 
+                                   model: LlamaForCausalLM, 
+                                   tokenizer: LlamaTokenizer, 
+                                   output_filename: str = "last_token_logits.json"):
+    print(f"Analyzing prompt: '{prompt}'")
+    
+    #Get model outputs
+    inputs = tokenizer(prompt, return_tensors="pt").to(DEVICE)
+    with torch.no_grad():
+        outputs = model(**inputs)
+    
+    # for the very last token prediction
+    
+    last_logits = outputs.logits[0, -1, :]
+    
+    # probabilities for the entire vocabulary
+    last_probs = F.softmax(last_logits, dim=-1)
+    
+    # 4. Sort 
+    sorted_probs, sorted_indices = torch.sort(last_probs, descending=True)
+    
+    # 5. all token data
+    all_logits_data = []
+    for i in range(len(sorted_indices)):
+        token_id = sorted_indices[i].item()
+        prob = sorted_probs[i].item()
+        logit = last_logits[token_id].item() 
+        token_str = tokenizer.decode(token_id)
+        
+        all_logits_data.append({
+            'rank': i + 1,
+            'token': token_str,
+            'token_id': token_id,
+            'probability': prob,
+            'logit': logit
+        })
+        
+    with open(output_filename, 'w') as f:
+        json.dump(all_logits_data, f, indent=4)
+        
+    print(f"✅ Successfully saved all {len(all_logits_data)} logits to '{output_filename}'")
 
-# Get the analysis
-analysis = analyze_prompt_logits(prompt_to_analyze, model, tokenizer, top_k=5)
+# %%
+sample_texts = [
+        "The capital of France is",
+        "The largest mammal on Earth is",
+        "The process of photosynthesis occurs in"
+    ]
 
-# Print the results
-print_analysis(analysis)
+
+for i in range(len(sample_texts)):
+    print(f"\n--- Sample Prompt {i+1} ---")
+    print(sample_texts[i])
+    target_prompt = sample_texts[i]
+    detailed_analysis_file = sample_texts[i].replace(" ", "_").lower() + "_detailed_analysis.txt"
+    all_logits_file = sample_texts[i].replace(" ", "_").lower() + "_all_logits.json"
+
+
+    analysis = analyze_prompt_logits(target_prompt, model, tokenizer, top_k=50)
+    save_analysis_to_file(analysis, detailed_analysis_file)
+    save_all_logits_for_last_token(target_prompt, model, tokenizer, output_filename=all_logits_file)
+
+    # --- Optional: Print a brief summary to the console ---
+    print("\n--- Console Summary---")
+    print_analysis([analysis[-1]])
+
 
 # Clean up to free VRAM
+print("\nCleaning up model and tokenizer from memory.")
 del model
 del tokenizer
 gc.collect()
 torch.cuda.empty_cache()
-
-# %%
-
-
-# %%
-
-
-# %%
-
-
-# %%
-
 
 
