@@ -1,0 +1,134 @@
+
+==========================================
+ Step 0 | Input Token: <s> (ID: 1)
+==========================================
+Actual Next Token: The (ID: 450)
+  > Model's Logit for this token: 0.1216
+  > Model's Prob for this token:  0.0000
+
+Model's Top-5 Predictions for *this* position:
+----------------------------------------------
+Rank  | Word            | Token ID | Logit      | Probability
+-------------------------------------------------------------------
+1     | 'Unterscheidung' | 19838    | 6.8945     | 0.0159    
+2     | 'nobody'        | 23196    | 6.8242     | 0.0148    
+3     | 'everybody'     | 26077    | 6.4727     | 0.0104    
+4     | 'Hinweis'       | 18627    | 6.2617     | 0.0084    
+5     | 'hopefully'     | 27581    | 6.1172     | 0.0073    
+
+==========================================
+ Step 1 | Input Token: The (ID: 450)
+==========================================
+Actual Next Token: free (ID: 3889)
+  > Model's Logit for this token: -0.6084
+  > Model's Prob for this token:  0.0002
+
+Model's Top-5 Predictions for *this* position:
+----------------------------------------------
+Rank  | Word            | Token ID | Logit      | Probability
+-------------------------------------------------------------------
+1     | ''              | 29871    | 4.1484     | 0.0216    
+2     | 'following'     | 1494     | 3.7207     | 0.0141    
+3     | 'first'         | 937      | 3.3145     | 0.0094    
+4     | 'S'             | 317      | 3.1895     | 0.0083    
+5     | 'Best'          | 6407     | 3.1641     | 0.0081    
+
+==========================================
+ Step 2 | Input Token: free (ID: 3889)
+==========================================
+Actual Next Token: zing (ID: 19583)
+  > Model's Logit for this token: 6.0586
+  > Model's Prob for this token:  0.0179
+
+Model's Top-5 Predictions for *this* position:
+----------------------------------------------
+Rank  | Word            | Token ID | Logit      | Probability
+-------------------------------------------------------------------
+1     | '-'             | 29899    | 7.3008     | 0.0621    
+2     | 'version'       | 1873     | 7.1641     | 0.0542    
+3     | 'en'            | 427      | 7.1406     | 0.0529    
+4     | 'market'        | 9999     | 7.0078     | 0.0464    
+5     | 'trade'         | 11302    | 6.7734     | 0.0367    
+
+==========================================
+ Step 3 | Input Token: zing (ID: 19583)
+==========================================
+Actual Next Token: point (ID: 1298)
+  > Model's Logit for this token: 12.8047
+  > Model's Prob for this token:  0.0824
+
+Model's Top-5 Predictions for *this* position:
+----------------------------------------------
+Rank  | Word            | Token ID | Logit      | Probability
+-------------------------------------------------------------------
+1     | 'of'            | 310      | 14.6953    | 0.5459    
+2     | 'temper'        | 6238     | 12.8984    | 0.0905    
+3     | 'point'         | 1298     | 12.8047    | 0.0824    
+4     | 'temperature'   | 10430    | 12.2109    | 0.0455    
+5     | 'rain'          | 17251    | 12.0781    | 0.0399    
+
+==========================================
+ Step 4 | Input Token: point (ID: 1298)
+==========================================
+Actual Next Token: of (ID: 310)
+  > Model's Logit for this token: 20.7031
+  > Model's Prob for this token:  0.9854
+
+Model's Top-5 Predictions for *this* position:
+----------------------------------------------
+Rank  | Word            | Token ID | Logit      | Probability
+-------------------------------------------------------------------
+1     | 'of'            | 310      | 20.7031    | 0.9854    
+2     | 'is'            | 338      | 15.4141    | 0.0050    
+3     | 'temperature'   | 10430    | 14.8281    | 0.0028    
+4     | 'de'            | 316      | 14.8203    | 0.0027    
+5     | 'and'           | 322      | 13.5078    | 0.0007    
+
+==========================================
+ Step 5 | Input Token: of (ID: 310)
+==========================================
+Actual Next Token: water (ID: 4094)
+  > Model's Logit for this token: 15.4297
+  > Model's Prob for this token:  0.5889
+
+Model's Top-5 Predictions for *this* position:
+----------------------------------------------
+Rank  | Word            | Token ID | Logit      | Probability
+-------------------------------------------------------------------
+1     | 'water'         | 4094     | 15.4297    | 0.5889    
+2     | 'a'             | 263      | 13.9766    | 0.1377    
+3     | 'pure'          | 8296     | 13.3125    | 0.0709    
+4     | 'mer'           | 2778     | 12.4219    | 0.0291    
+5     | 'liquid'        | 23904    | 12.1875    | 0.0230    
+
+==========================================
+ Step 6 | Input Token: water (ID: 4094)
+==========================================
+Actual Next Token: is (ID: 338)
+  > Model's Logit for this token: 20.2656
+  > Model's Prob for this token:  0.9702
+
+Model's Top-5 Predictions for *this* position:
+----------------------------------------------
+Rank  | Word            | Token ID | Logit      | Probability
+-------------------------------------------------------------------
+1     | 'is'            | 338      | 20.2656    | 0.9702    
+2     | 'in'            | 297      | 14.8281    | 0.0042    
+3     | ','             | 29892    | 14.6328    | 0.0035    
+4     | 'var'           | 722      | 14.5781    | 0.0033    
+5     | '('             | 313      | 14.3906    | 0.0027    
+
+==========================================
+ Step 7 | Input Token: is (ID: 338)
+==========================================
+--- End of Prompt ---
+
+Model's Top-5 Predictions for *this* position:
+----------------------------------------------
+Rank  | Word            | Token ID | Logit      | Probability
+-------------------------------------------------------------------
+1     | ''              | 29871    | 18.1094    | 0.9062    
+2     | '$'             | 395      | 14.1797    | 0.0178    
+3     | 'approximately' | 14235    | 14.1016    | 0.0165    
+4     | 'a'             | 263      | 13.7031    | 0.0111    
+5     | 'the'           | 278      | 12.7969    | 0.0045    

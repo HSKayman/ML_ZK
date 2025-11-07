@@ -1,0 +1,152 @@
+
+==========================================
+ Step 0 | Input Token: <s> (ID: 1)
+==========================================
+Actual Next Token: The (ID: 450)
+  > Model's Logit for this token: 0.1216
+  > Model's Prob for this token:  0.0000
+
+Model's Top-5 Predictions for *this* position:
+----------------------------------------------
+Rank  | Word            | Token ID | Logit      | Probability
+-------------------------------------------------------------------
+1     | 'Unterscheidung' | 19838    | 6.8945     | 0.0159    
+2     | 'nobody'        | 23196    | 6.8242     | 0.0148    
+3     | 'everybody'     | 26077    | 6.4727     | 0.0104    
+4     | 'Hinweis'       | 18627    | 6.2617     | 0.0084    
+5     | 'hopefully'     | 27581    | 6.1172     | 0.0073    
+
+==========================================
+ Step 1 | Input Token: The (ID: 450)
+==========================================
+Actual Next Token: human (ID: 5199)
+  > Model's Logit for this token: 0.3672
+  > Model's Prob for this token:  0.0005
+
+Model's Top-5 Predictions for *this* position:
+----------------------------------------------
+Rank  | Word            | Token ID | Logit      | Probability
+-------------------------------------------------------------------
+1     | ''              | 29871    | 4.1484     | 0.0216    
+2     | 'following'     | 1494     | 3.7207     | 0.0141    
+3     | 'first'         | 937      | 3.3145     | 0.0094    
+4     | 'S'             | 317      | 3.1895     | 0.0083    
+5     | 'Best'          | 6407     | 3.1641     | 0.0081    
+
+==========================================
+ Step 2 | Input Token: human (ID: 5199)
+==========================================
+Actual Next Token: body (ID: 3573)
+  > Model's Logit for this token: 12.8359
+  > Model's Prob for this token:  0.1365
+
+Model's Top-5 Predictions for *this* position:
+----------------------------------------------
+Rank  | Word            | Token ID | Logit      | Probability
+-------------------------------------------------------------------
+1     | 'brain'         | 17294    | 13.5391    | 0.2759    
+2     | 'body'          | 3573     | 12.8359    | 0.1365    
+3     | 'nose'          | 26414    | 11.7891    | 0.0479    
+4     | 'imm'           | 5198     | 11.7188    | 0.0447    
+5     | 'mind'          | 3458     | 11.4844    | 0.0353    
+
+==========================================
+ Step 3 | Input Token: body (ID: 3573)
+==========================================
+Actual Next Token: has (ID: 756)
+  > Model's Logit for this token: 16.6406
+  > Model's Prob for this token:  0.1416
+
+Model's Top-5 Predictions for *this* position:
+----------------------------------------------
+Rank  | Word            | Token ID | Logit      | Probability
+-------------------------------------------------------------------
+1     | 'is'            | 338      | 18.3438    | 0.7778    
+2     | 'has'           | 756      | 16.6406    | 0.1416    
+3     | 'contains'      | 3743     | 14.5547    | 0.0176    
+4     | 'can'           | 508      | 14.4141    | 0.0153    
+5     | 'consists'      | 11624    | 13.8828    | 0.0090    
+
+==========================================
+ Step 4 | Input Token: has (ID: 756)
+==========================================
+Actual Next Token: how (ID: 920)
+  > Model's Logit for this token: 4.5508
+  > Model's Prob for this token:  0.0000
+
+Model's Top-5 Predictions for *this* position:
+----------------------------------------------
+Rank  | Word            | Token ID | Logit      | Probability
+-------------------------------------------------------------------
+1     | 'a'             | 263      | 16.5625    | 0.4143    
+2     | 'many'          | 1784     | 15.4453    | 0.1355    
+3     | 'an'            | 385      | 15.4219    | 0.1324    
+4     | 'the'           | 278      | 14.8984    | 0.0784    
+5     | 'over'          | 975      | 13.7734    | 0.0255    
+
+==========================================
+ Step 5 | Input Token: how (ID: 920)
+==========================================
+Actual Next Token: many (ID: 1784)
+  > Model's Logit for this token: 20.5938
+  > Model's Prob for this token:  0.9751
+
+Model's Top-5 Predictions for *this* position:
+----------------------------------------------
+Rank  | Word            | Token ID | Logit      | Probability
+-------------------------------------------------------------------
+1     | 'many'          | 1784     | 20.5938    | 0.9751    
+2     | 'much'          | 1568     | 16.5781    | 0.0176    
+3     | 'long'          | 1472     | 13.8516    | 0.0012    
+4     | 'to'            | 304      | 13.7188    | 0.0010    
+5     | 'itzer'         | 13510    | 13.4766    | 0.0008    
+
+==========================================
+ Step 6 | Input Token: many (ID: 1784)
+==========================================
+Actual Next Token: b (ID: 289)
+  > Model's Logit for this token: 15.3672
+  > Model's Prob for this token:  0.6143
+
+Model's Top-5 Predictions for *this* position:
+----------------------------------------------
+Rank  | Word            | Token ID | Logit      | Probability
+-------------------------------------------------------------------
+1     | 'b'             | 289      | 15.3672    | 0.6143    
+2     | 'mus'           | 2301     | 13.6641    | 0.1118    
+3     | 'cells'         | 9101     | 12.5469    | 0.0366    
+4     | 'rib'           | 18130    | 11.6172    | 0.0144    
+5     | 'atoms'         | 28422    | 11.5469    | 0.0135    
+
+==========================================
+ Step 7 | Input Token: b (ID: 289)
+==========================================
+Actual Next Token: ones (ID: 2873)
+  > Model's Logit for this token: 26.9844
+  > Model's Prob for this token:  0.9976
+
+Model's Top-5 Predictions for *this* position:
+----------------------------------------------
+Rank  | Word            | Token ID | Logit      | Probability
+-------------------------------------------------------------------
+1     | 'ones'          | 2873     | 26.9844    | 0.9976    
+2     | 'acter'         | 5761     | 20.4062    | 0.0014    
+3     | 'one'           | 650      | 19.8594    | 0.0008    
+4     | 'umps'          | 17204    | 17.0156    | 0.0000    
+5     | 'ab'            | 370      | 16.4844    | 0.0000    
+
+==========================================
+ Step 8 | Input Token: ones (ID: 2873)
+==========================================
+--- End of Prompt ---
+
+Model's Top-5 Predictions for *this* position:
+----------------------------------------------
+Rank  | Word            | Token ID | Logit      | Probability
+-------------------------------------------------------------------
+1     | '?'             | 29973    | 19.9219    | 0.9062    
+2     | 'in'            | 297      | 16.6562    | 0.0346    
+3     | '
+'             | 13       | 16.2188    | 0.0223    
+4     | ','             | 29892    | 15.4688    | 0.0106    
+5     | 'and'           | 322      | 14.6875    | 0.0048    

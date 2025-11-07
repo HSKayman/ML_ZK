@@ -1,0 +1,101 @@
+
+==========================================
+ Step 0 | Input Token: <s> (ID: 1)
+==========================================
+Actual Next Token: The (ID: 450)
+  > Model's Logit for this token: 0.1214
+  > Model's Prob for this token:  0.0000
+
+Model's Top-5 Predictions for *this* position:
+----------------------------------------------
+Rank  | Word            | Token ID | Logit      | Probability
+-------------------------------------------------------------------
+1     | 'Unterscheidung' | 19838    | 6.8945     | 0.0159    
+2     | 'nobody'        | 23196    | 6.8242     | 0.0148    
+3     | 'everybody'     | 26077    | 6.4727     | 0.0104    
+4     | 'Hinweis'       | 18627    | 6.2617     | 0.0084    
+5     | 'hopefully'     | 27581    | 6.1172     | 0.0073    
+
+==========================================
+ Step 1 | Input Token: The (ID: 450)
+==========================================
+Actual Next Token: currency (ID: 27550)
+  > Model's Logit for this token: -2.0879
+  > Model's Prob for this token:  0.0000
+
+Model's Top-5 Predictions for *this* position:
+----------------------------------------------
+Rank  | Word            | Token ID | Logit      | Probability
+-------------------------------------------------------------------
+1     | ''              | 29871    | 4.1484     | 0.0216    
+2     | 'following'     | 1494     | 3.7207     | 0.0141    
+3     | 'first'         | 937      | 3.3164     | 0.0094    
+4     | 'S'             | 317      | 3.1914     | 0.0083    
+5     | 'Best'          | 6407     | 3.1641     | 0.0081    
+
+==========================================
+ Step 2 | Input Token: currency (ID: 27550)
+==========================================
+Actual Next Token: of (ID: 310)
+  > Model's Logit for this token: 13.0312
+  > Model's Prob for this token:  0.4641
+
+Model's Top-5 Predictions for *this* position:
+----------------------------------------------
+Rank  | Word            | Token ID | Logit      | Probability
+-------------------------------------------------------------------
+1     | 'of'            | 310      | 13.0312    | 0.4641    
+2     | 'in'            | 297      | 11.9688    | 0.1604    
+3     | 'exchange'      | 14523    | 10.7109    | 0.0456    
+4     | 'trad'          | 3534     | 10.5938    | 0.0406    
+5     | 'market'        | 9999     | 10.2109    | 0.0276    
+
+==========================================
+ Step 3 | Input Token: of (ID: 310)
+==========================================
+Actual Next Token: Japan (ID: 5546)
+  > Model's Logit for this token: 10.7656
+  > Model's Prob for this token:  0.0252
+
+Model's Top-5 Predictions for *this* position:
+----------------------------------------------
+Rank  | Word            | Token ID | Logit      | Probability
+-------------------------------------------------------------------
+1     | 'the'           | 278      | 13.2031    | 0.2888    
+2     | 'a'             | 263      | 11.9297    | 0.0808    
+3     | 'Japan'         | 5546     | 10.7656    | 0.0252    
+4     | 'Australia'     | 8314     | 10.5781    | 0.0209    
+5     | 'Vietnam'       | 18444    | 10.0625    | 0.0125    
+
+==========================================
+ Step 4 | Input Token: Japan (ID: 5546)
+==========================================
+Actual Next Token: is (ID: 338)
+  > Model's Logit for this token: 23.3906
+  > Model's Prob for this token:  0.9893
+
+Model's Top-5 Predictions for *this* position:
+----------------------------------------------
+Rank  | Word            | Token ID | Logit      | Probability
+-------------------------------------------------------------------
+1     | 'is'            | 338      | 23.3906    | 0.9893    
+2     | ','             | 29892    | 17.7500    | 0.0035    
+3     | '
+'             | 13       | 17.4688    | 0.0027    
+4     | '.'             | 29889    | 16.8906    | 0.0015    
+5     | 'and'           | 322      | 16.4375    | 0.0009    
+
+==========================================
+ Step 5 | Input Token: is (ID: 338)
+==========================================
+--- End of Prompt ---
+
+Model's Top-5 Predictions for *this* position:
+----------------------------------------------
+Rank  | Word            | Token ID | Logit      | Probability
+-------------------------------------------------------------------
+1     | 'the'           | 278      | 23.0000    | 0.9116    
+2     | 'called'        | 2000     | 19.9844    | 0.0447    
+3     | 'known'         | 2998     | 19.7500    | 0.0353    
+4     | 'Y'             | 612      | 17.4844    | 0.0037    
+5     | 'Japanese'      | 10369    | 17.3594    | 0.0032    

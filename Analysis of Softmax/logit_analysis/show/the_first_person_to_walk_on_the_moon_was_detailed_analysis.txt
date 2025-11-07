@@ -1,0 +1,170 @@
+
+==========================================
+ Step 0 | Input Token: <s> (ID: 1)
+==========================================
+Actual Next Token: The (ID: 450)
+  > Model's Logit for this token: 0.1216
+  > Model's Prob for this token:  0.0000
+
+Model's Top-5 Predictions for *this* position:
+----------------------------------------------
+Rank  | Word            | Token ID | Logit      | Probability
+-------------------------------------------------------------------
+1     | 'Unterscheidung' | 19838    | 6.8945     | 0.0159    
+2     | 'nobody'        | 23196    | 6.8242     | 0.0148    
+3     | 'everybody'     | 26077    | 6.4727     | 0.0104    
+4     | 'Hinweis'       | 18627    | 6.2617     | 0.0084    
+5     | 'hopefully'     | 27581    | 6.1172     | 0.0073    
+
+==========================================
+ Step 1 | Input Token: The (ID: 450)
+==========================================
+Actual Next Token: first (ID: 937)
+  > Model's Logit for this token: 3.3145
+  > Model's Prob for this token:  0.0094
+
+Model's Top-5 Predictions for *this* position:
+----------------------------------------------
+Rank  | Word            | Token ID | Logit      | Probability
+-------------------------------------------------------------------
+1     | ''              | 29871    | 4.1484     | 0.0216    
+2     | 'following'     | 1494     | 3.7207     | 0.0141    
+3     | 'first'         | 937      | 3.3145     | 0.0094    
+4     | 'S'             | 317      | 3.1895     | 0.0083    
+5     | 'Best'          | 6407     | 3.1641     | 0.0081    
+
+==========================================
+ Step 2 | Input Token: first (ID: 937)
+==========================================
+Actual Next Token: person (ID: 2022)
+  > Model's Logit for this token: 3.0781
+  > Model's Prob for this token:  0.0020
+
+Model's Top-5 Predictions for *this* position:
+----------------------------------------------
+Rank  | Word            | Token ID | Logit      | Probability
+-------------------------------------------------------------------
+1     | 'step'          | 4331     | 7.1797     | 0.1235    
+2     | 'time'          | 931      | 6.4219     | 0.0579    
+3     | 'thing'         | 2655     | 6.2500     | 0.0487    
+4     | 'of'            | 310      | 5.2500     | 0.0179    
+5     | 'picture'       | 7623     | 5.0625     | 0.0149    
+
+==========================================
+ Step 3 | Input Token: person (ID: 2022)
+==========================================
+Actual Next Token: to (ID: 304)
+  > Model's Logit for this token: 16.4219
+  > Model's Prob for this token:  0.8408
+
+Model's Top-5 Predictions for *this* position:
+----------------------------------------------
+Rank  | Word            | Token ID | Logit      | Probability
+-------------------------------------------------------------------
+1     | 'to'            | 304      | 16.4219    | 0.8408    
+2     | 'in'            | 297      | 13.6016    | 0.0501    
+3     | 'I'             | 306      | 12.7109    | 0.0206    
+4     | 'you'           | 366      | 12.0938    | 0.0111    
+5     | 'who'           | 1058     | 12.0703    | 0.0108    
+
+==========================================
+ Step 4 | Input Token: to (ID: 304)
+==========================================
+Actual Next Token: walk (ID: 6686)
+  > Model's Logit for this token: 10.3125
+  > Model's Prob for this token:  0.0128
+
+Model's Top-5 Predictions for *this* position:
+----------------------------------------------
+Rank  | Word            | Token ID | Logit      | Probability
+-------------------------------------------------------------------
+1     | 'use'           | 671      | 12.1953    | 0.0840    
+2     | 'be'            | 367      | 12.1484    | 0.0801    
+3     | 'reach'         | 6159     | 11.7656    | 0.0547    
+4     | 'comment'       | 3440     | 11.4219    | 0.0388    
+5     | 'make'          | 1207     | 11.3672    | 0.0367    
+
+==========================================
+ Step 5 | Input Token: walk (ID: 6686)
+==========================================
+Actual Next Token: on (ID: 373)
+  > Model's Logit for this token: 18.9219
+  > Model's Prob for this token:  0.7334
+
+Model's Top-5 Predictions for *this* position:
+----------------------------------------------
+Rank  | Word            | Token ID | Logit      | Probability
+-------------------------------------------------------------------
+1     | 'on'            | 373      | 18.9219    | 0.7334    
+2     | 'the'           | 278      | 16.8438    | 0.0918    
+3     | 'in'            | 297      | 15.9297    | 0.0368    
+4     | 'into'          | 964      | 15.8672    | 0.0346    
+5     | 'through'       | 1549     | 15.5469    | 0.0251    
+
+==========================================
+ Step 6 | Input Token: on (ID: 373)
+==========================================
+Actual Next Token: the (ID: 278)
+  > Model's Logit for this token: 18.8438
+  > Model's Prob for this token:  0.8584
+
+Model's Top-5 Predictions for *this* position:
+----------------------------------------------
+Rank  | Word            | Token ID | Logit      | Probability
+-------------------------------------------------------------------
+1     | 'the'           | 278      | 18.8438    | 0.8584    
+2     | 'Mars'          | 16852    | 16.3906    | 0.0739    
+3     | 'Earth'         | 11563    | 14.6953    | 0.0136    
+4     | 'moon'          | 18786    | 14.1953    | 0.0082    
+5     | 'a'             | 263      | 14.0312    | 0.0070    
+
+==========================================
+ Step 7 | Input Token: the (ID: 278)
+==========================================
+Actual Next Token: moon (ID: 18786)
+  > Model's Logit for this token: 20.3906
+  > Model's Prob for this token:  0.9409
+
+Model's Top-5 Predictions for *this* position:
+----------------------------------------------
+Rank  | Word            | Token ID | Logit      | Probability
+-------------------------------------------------------------------
+1     | 'moon'          | 18786    | 20.3906    | 0.9409    
+2     | 'Moon'          | 17549    | 17.2969    | 0.0427    
+3     | 'surface'       | 7101     | 15.0469    | 0.0045    
+4     | 'lun'           | 25081    | 14.4531    | 0.0025    
+5     | 'sun'           | 6575     | 14.1797    | 0.0019    
+
+==========================================
+ Step 8 | Input Token: moon (ID: 18786)
+==========================================
+Actual Next Token: was (ID: 471)
+  > Model's Logit for this token: 16.8594
+  > Model's Prob for this token:  0.5469
+
+Model's Top-5 Predictions for *this* position:
+----------------------------------------------
+Rank  | Word            | Token ID | Logit      | Probability
+-------------------------------------------------------------------
+1     | 'was'           | 471      | 16.8594    | 0.5469    
+2     | ','             | 29892    | 16.1875    | 0.2793    
+3     | 'is'            | 338      | 14.3516    | 0.0446    
+4     | '
+'             | 13       | 13.9922    | 0.0311    
+5     | '.'             | 29889    | 13.4062    | 0.0173    
+
+==========================================
+ Step 9 | Input Token: was (ID: 471)
+==========================================
+--- End of Prompt ---
+
+Model's Top-5 Predictions for *this* position:
+----------------------------------------------
+Rank  | Word            | Token ID | Logit      | Probability
+-------------------------------------------------------------------
+1     | 'Neil'          | 29334    | 18.0625    | 0.9102    
+2     | 'Ed'            | 2155     | 13.8906    | 0.0140    
+3     | '
+'             | 13       | 13.6328    | 0.0108    
+4     | '_'             | 903      | 13.4844    | 0.0094    
+5     | 'Ne'            | 2448     | 13.1719    | 0.0068    

@@ -1,0 +1,83 @@
+
+==========================================
+ Step 0 | Input Token: <s> (ID: 1)
+==========================================
+Actual Next Token: Shakespeare (ID: 23688)
+  > Model's Logit for this token: -0.4910
+  > Model's Prob for this token:  0.0000
+
+Model's Top-5 Predictions for *this* position:
+----------------------------------------------
+Rank  | Word            | Token ID | Logit      | Probability
+-------------------------------------------------------------------
+1     | 'Unterscheidung' | 19838    | 6.8945     | 0.0159    
+2     | 'nobody'        | 23196    | 6.8242     | 0.0148    
+3     | 'everybody'     | 26077    | 6.4727     | 0.0104    
+4     | 'Hinweis'       | 18627    | 6.2617     | 0.0084    
+5     | 'hopefully'     | 27581    | 6.1172     | 0.0073    
+
+==========================================
+ Step 1 | Input Token: Shakespeare (ID: 23688)
+==========================================
+Actual Next Token: wrote (ID: 5456)
+  > Model's Logit for this token: 7.8750
+  > Model's Prob for this token:  0.0195
+
+Model's Top-5 Predictions for *this* position:
+----------------------------------------------
+Rank  | Word            | Token ID | Logit      | Probability
+-------------------------------------------------------------------
+1     | '''             | 29915    | 10.5781    | 0.2917    
+2     | '’'             | 30010    | 10.1094    | 0.1826    
+3     | 'and'           | 322      | 9.2344     | 0.0761    
+4     | 'in'            | 297      | 9.0391     | 0.0626    
+5     | ','             | 29892    | 9.0078     | 0.0607    
+
+==========================================
+ Step 2 | Input Token: wrote (ID: 5456)
+==========================================
+Actual Next Token: the (ID: 278)
+  > Model's Logit for this token: 13.4844
+  > Model's Prob for this token:  0.1166
+
+Model's Top-5 Predictions for *this* position:
+----------------------------------------------
+Rank  | Word            | Token ID | Logit      | Probability
+-------------------------------------------------------------------
+1     | 'the'           | 278      | 13.4844    | 0.1166    
+2     | ''              | 29871    | 13.1328    | 0.0821    
+3     | 'his'           | 670      | 13.1172    | 0.0808    
+4     | 'a'             | 263      | 13.1094    | 0.0801    
+5     | 'many'          | 1784     | 13.0625    | 0.0765    
+
+==========================================
+ Step 3 | Input Token: the (ID: 278)
+==========================================
+Actual Next Token: play (ID: 1708)
+  > Model's Logit for this token: 12.4219
+  > Model's Prob for this token:  0.5669
+
+Model's Top-5 Predictions for *this* position:
+----------------------------------------------
+Rank  | Word            | Token ID | Logit      | Probability
+-------------------------------------------------------------------
+1     | 'play'          | 1708     | 12.4219    | 0.5669    
+2     | 'plays'         | 13582    | 10.7188    | 0.1033    
+3     | 'first'         | 937      | 9.3047     | 0.0251    
+4     | 'majority'      | 13638    | 9.2031     | 0.0227    
+5     | 'following'     | 1494     | 9.1094     | 0.0206    
+
+==========================================
+ Step 4 | Input Token: play (ID: 1708)
+==========================================
+--- End of Prompt ---
+
+Model's Top-5 Predictions for *this* position:
+----------------------------------------------
+Rank  | Word            | Token ID | Logit      | Probability
+-------------------------------------------------------------------
+1     | 'in'            | 297      | 16.4219    | 0.5068    
+2     | '"'             | 376      | 14.6484    | 0.0861    
+3     | 'to'            | 304      | 14.1484    | 0.0522    
+4     | ','             | 29892    | 13.8984    | 0.0406    
+5     | 'during'        | 2645     | 13.5625    | 0.0291    

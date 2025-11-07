@@ -146,21 +146,25 @@ import sys
 def save_analysis_to_file(analysis_results, output_filename: str):
     print(f"\n--- Redirecting detailed analysis to '{output_filename}' ---")
     
-    # Save the current standard output (the console)
+    # Save the current standard output
     original_stdout = sys.stdout 
     
     try:
-        # Redirect standard output to the file
-        with open(output_filename, 'w') as f:
+        # Redirect standard output to the file with UTF-8 encoding
+        with open(output_filename, 'w', encoding='utf-8') as f:
             sys.stdout = f
             print_analysis(analysis_results)
-    finally:
-        # **Crucially, restore the original standard output here.**
-        # This block runs after the 'try' block, guaranteeing restoration.
+        
+        # Restore stdout BEFORE trying to print to console
         sys.stdout = original_stdout
+        print(f"✅ Successfully saved detailed analysis to '{output_filename}'")
+        
+    except Exception as e:
+        # Make sure stdout is restored even if there's an error
+        sys.stdout = original_stdout
+        print(f"❌ Error saving analysis: {e}")
+        raise
 
-    # Now that stdout is back to the console, this will print correctly.
-    print(f"✅ Successfully saved detailed analysis to '{output_filename}'")
 
 # %%
 def save_all_logits_for_last_token(prompt: str, 
@@ -207,11 +211,32 @@ def save_all_logits_for_last_token(prompt: str,
 
 # %%
 sample_texts = [
-        "The capital of France is",
-        "The largest mammal on Earth is the",
-        "The process of photosynthesis occurs in the"
-    ]
-
+    "The capital of France is",
+    "The largest mammal on Earth is",
+    "The process of photosynthesis occurs in",
+    "The speed of light in a vacuum is",
+    "The chemical symbol for gold is",
+    "The human body has how many bones",
+    "The Great Wall of China was built to",
+    "Water boils at what temperature",
+    "The smallest unit of matter is",
+    "Shakespeare wrote the play",
+    "The currency of Japan is",
+    "Mount Everest is located in",
+    "The inventor of the telephone was",
+    "DNA stands for",
+    "The largest ocean on Earth is",
+    "The planet closest to the Sun is",
+    "Gravity was discovered by",
+    "The Amazon rainforest is primarily located in",
+    "The freezing point of water is",
+    "The most abundant gas in Earth's atmosphere is",
+    "The Mona Lisa was painted by",
+    "The longest river in the world is",
+    "Photosynthesis converts carbon dioxide and water into",
+    "The study of earthquakes is called",
+    "The first person to walk on the moon was"
+]
 
 for i in range(len(sample_texts)):
     print(f"\n--- Sample Prompt {i+1} ---")
@@ -221,7 +246,7 @@ for i in range(len(sample_texts)):
     all_logits_file = sample_texts[i].replace(" ", "_").lower() + "_all_logits.json"
 
 
-    analysis = analyze_prompt_logits(target_prompt, model, tokenizer, top_k=50)
+    analysis = analyze_prompt_logits(target_prompt, model, tokenizer, top_k=5)
     save_analysis_to_file(analysis, detailed_analysis_file)
     save_all_logits_for_last_token(target_prompt, model, tokenizer, output_filename=all_logits_file)
 

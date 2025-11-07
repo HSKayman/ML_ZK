@@ -1,0 +1,135 @@
+
+==========================================
+ Step 0 | Input Token: <s> (ID: 1)
+==========================================
+Actual Next Token: The (ID: 450)
+  > Model's Logit for this token: 0.1216
+  > Model's Prob for this token:  0.0000
+
+Model's Top-5 Predictions for *this* position:
+----------------------------------------------
+Rank  | Word            | Token ID | Logit      | Probability
+-------------------------------------------------------------------
+1     | 'Unterscheidung' | 19838    | 6.8945     | 0.0159    
+2     | 'nobody'        | 23196    | 6.8242     | 0.0148    
+3     | 'everybody'     | 26077    | 6.4727     | 0.0104    
+4     | 'Hinweis'       | 18627    | 6.2617     | 0.0084    
+5     | 'hopefully'     | 27581    | 6.1172     | 0.0073    
+
+==========================================
+ Step 1 | Input Token: The (ID: 450)
+==========================================
+Actual Next Token: longest (ID: 27217)
+  > Model's Logit for this token: -1.6553
+  > Model's Prob for this token:  0.0001
+
+Model's Top-5 Predictions for *this* position:
+----------------------------------------------
+Rank  | Word            | Token ID | Logit      | Probability
+-------------------------------------------------------------------
+1     | ''              | 29871    | 4.1484     | 0.0216    
+2     | 'following'     | 1494     | 3.7207     | 0.0141    
+3     | 'first'         | 937      | 3.3145     | 0.0094    
+4     | 'S'             | 317      | 3.1895     | 0.0083    
+5     | 'Best'          | 6407     | 3.1641     | 0.0081    
+
+==========================================
+ Step 2 | Input Token: longest (ID: 27217)
+==========================================
+Actual Next Token: river (ID: 8580)
+  > Model's Logit for this token: 8.3672
+  > Model's Prob for this token:  0.0510
+
+Model's Top-5 Predictions for *this* position:
+----------------------------------------------
+Rank  | Word            | Token ID | Logit      | Probability
+-------------------------------------------------------------------
+1     | '-'             | 29899    | 9.7891     | 0.2114    
+2     | 'word'          | 1734     | 8.8906     | 0.0861    
+3     | 'day'           | 2462     | 8.7031     | 0.0714    
+4     | 'river'         | 8580     | 8.3672     | 0.0510    
+5     | 'running'       | 2734     | 7.9922     | 0.0350    
+
+==========================================
+ Step 3 | Input Token: river (ID: 8580)
+==========================================
+Actual Next Token: in (ID: 297)
+  > Model's Logit for this token: 20.7969
+  > Model's Prob for this token:  0.9863
+
+Model's Top-5 Predictions for *this* position:
+----------------------------------------------
+Rank  | Word            | Token ID | Logit      | Probability
+-------------------------------------------------------------------
+1     | 'in'            | 297      | 20.7969    | 0.9863    
+2     | 'on'            | 373      | 15.2109    | 0.0037    
+3     | 'of'            | 310      | 14.7578    | 0.0023    
+4     | 'system'        | 1788     | 14.3125    | 0.0015    
+5     | 'bas'           | 2362     | 13.7344    | 0.0008    
+
+==========================================
+ Step 4 | Input Token: in (ID: 297)
+==========================================
+Actual Next Token: the (ID: 278)
+  > Model's Logit for this token: 15.9766
+  > Model's Prob for this token:  0.3875
+
+Model's Top-5 Predictions for *this* position:
+----------------------------------------------
+Rank  | Word            | Token ID | Logit      | Probability
+-------------------------------------------------------------------
+1     | 'the'           | 278      | 15.9766    | 0.3875    
+2     | 'South'         | 4275     | 15.4219    | 0.2224    
+3     | 'Africa'        | 10557    | 14.2578    | 0.0695    
+4     | 'Europe'        | 4092     | 14.1094    | 0.0599    
+5     | 'My'            | 1619     | 13.8594    | 0.0466    
+
+==========================================
+ Step 5 | Input Token: the (ID: 278)
+==========================================
+Actual Next Token: world (ID: 3186)
+  > Model's Logit for this token: 17.9375
+  > Model's Prob for this token:  0.8286
+
+Model's Top-5 Predictions for *this* position:
+----------------------------------------------
+Rank  | Word            | Token ID | Logit      | Probability
+-------------------------------------------------------------------
+1     | 'world'         | 3186     | 17.9375    | 0.8286    
+2     | 'United'        | 3303     | 15.8672    | 0.1045    
+3     | 'Amazon'        | 16631    | 13.2266    | 0.0075    
+4     | 'cont'          | 640      | 13.0391    | 0.0062    
+5     | 'UK'            | 10261    | 12.6328    | 0.0041    
+
+==========================================
+ Step 6 | Input Token: world (ID: 3186)
+==========================================
+Actual Next Token: is (ID: 338)
+  > Model's Logit for this token: 18.4219
+  > Model's Prob for this token:  0.5986
+
+Model's Top-5 Predictions for *this* position:
+----------------------------------------------
+Rank  | Word            | Token ID | Logit      | Probability
+-------------------------------------------------------------------
+1     | 'is'            | 338      | 18.4219    | 0.5986    
+2     | ','             | 29892    | 17.3438    | 0.2036    
+3     | 'by'            | 491      | 16.1719    | 0.0631    
+4     | '
+'             | 13       | 15.3203    | 0.0269    
+5     | '?'             | 29973    | 14.7422    | 0.0151    
+
+==========================================
+ Step 7 | Input Token: is (ID: 338)
+==========================================
+--- End of Prompt ---
+
+Model's Top-5 Predictions for *this* position:
+----------------------------------------------
+Rank  | Word            | Token ID | Logit      | Probability
+-------------------------------------------------------------------
+1     | 'the'           | 278      | 19.1719    | 0.9688    
+2     | 'not'           | 451      | 13.9531    | 0.0052    
+3     | 'also'          | 884      | 13.2109    | 0.0025    
+4     | '?'             | 29973    | 13.0391    | 0.0021    
+5     | 'actually'      | 2869     | 13.0234    | 0.0021    

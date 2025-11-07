@@ -1,0 +1,134 @@
+
+==========================================
+ Step 0 | Input Token: <s> (ID: 1)
+==========================================
+Actual Next Token: The (ID: 450)
+  > Model's Logit for this token: 0.1216
+  > Model's Prob for this token:  0.0000
+
+Model's Top-5 Predictions for *this* position:
+----------------------------------------------
+Rank  | Word            | Token ID | Logit      | Probability
+-------------------------------------------------------------------
+1     | 'Unterscheidung' | 19838    | 6.8945     | 0.0159    
+2     | 'nobody'        | 23196    | 6.8242     | 0.0148    
+3     | 'everybody'     | 26077    | 6.4727     | 0.0104    
+4     | 'Hinweis'       | 18627    | 6.2617     | 0.0084    
+5     | 'hopefully'     | 27581    | 6.1172     | 0.0073    
+
+==========================================
+ Step 1 | Input Token: The (ID: 450)
+==========================================
+Actual Next Token: Mon (ID: 2598)
+  > Model's Logit for this token: 0.6157
+  > Model's Prob for this token:  0.0006
+
+Model's Top-5 Predictions for *this* position:
+----------------------------------------------
+Rank  | Word            | Token ID | Logit      | Probability
+-------------------------------------------------------------------
+1     | ''              | 29871    | 4.1484     | 0.0216    
+2     | 'following'     | 1494     | 3.7207     | 0.0141    
+3     | 'first'         | 937      | 3.3145     | 0.0094    
+4     | 'S'             | 317      | 3.1895     | 0.0083    
+5     | 'Best'          | 6407     | 3.1641     | 0.0081    
+
+==========================================
+ Step 2 | Input Token: Mon (ID: 2598)
+==========================================
+Actual Next Token: a (ID: 29874)
+  > Model's Logit for this token: 9.7266
+  > Model's Prob for this token:  0.0340
+
+Model's Top-5 Predictions for *this* position:
+----------------------------------------------
+Rank  | Word            | Token ID | Logit      | Probability
+-------------------------------------------------------------------
+1     | 'ster'          | 2475     | 11.5000    | 0.2003    
+2     | 'key'           | 1989     | 10.7656    | 0.0961    
+3     | 'itor'          | 2105     | 10.7422    | 0.0939    
+4     | 'aster'         | 1901     | 10.3984    | 0.0666    
+5     | 'arch'          | 1279     | 9.9922     | 0.0443    
+
+==========================================
+ Step 3 | Input Token: a (ID: 29874)
+==========================================
+Actual Next Token: Lisa (ID: 29420)
+  > Model's Logit for this token: 15.1562
+  > Model's Prob for this token:  0.9629
+
+Model's Top-5 Predictions for *this* position:
+----------------------------------------------
+Rank  | Word            | Token ID | Logit      | Probability
+-------------------------------------------------------------------
+1     | 'Lisa'          | 29420    | 15.1562    | 0.9629    
+2     | 'Lis'           | 15285    | 9.2969     | 0.0027    
+3     | 'Collection'    | 14348    | 9.0703     | 0.0022    
+4     | 'Pass'          | 6978     | 8.8203     | 0.0017    
+5     | 'Hat'           | 25966    | 8.5078     | 0.0012    
+
+==========================================
+ Step 4 | Input Token: Lisa (ID: 29420)
+==========================================
+Actual Next Token: was (ID: 471)
+  > Model's Logit for this token: 10.5625
+  > Model's Prob for this token:  0.0274
+
+Model's Top-5 Predictions for *this* position:
+----------------------------------------------
+Rank  | Word            | Token ID | Logit      | Probability
+-------------------------------------------------------------------
+1     | 'is'            | 338      | 12.6406    | 0.2188    
+2     | ':'             | 29901    | 12.3984    | 0.1716    
+3     | 'of'            | 310      | 11.7188    | 0.0870    
+4     | '''             | 29915    | 11.6016    | 0.0774    
+5     | ','             | 29892    | 11.5703    | 0.0750    
+
+==========================================
+ Step 5 | Input Token: was (ID: 471)
+==========================================
+Actual Next Token: painted (ID: 23139)
+  > Model's Logit for this token: 15.7266
+  > Model's Prob for this token:  0.5649
+
+Model's Top-5 Predictions for *this* position:
+----------------------------------------------
+Rank  | Word            | Token ID | Logit      | Probability
+-------------------------------------------------------------------
+1     | 'painted'       | 23139    | 15.7266    | 0.5649    
+2     | 'not'           | 451      | 14.0859    | 0.1095    
+3     | 'st'            | 380      | 13.4609    | 0.0586    
+4     | 'a'             | 263      | 13.1875    | 0.0446    
+5     | 'created'       | 2825     | 13.0078    | 0.0373    
+
+==========================================
+ Step 6 | Input Token: painted (ID: 23139)
+==========================================
+Actual Next Token: by (ID: 491)
+  > Model's Logit for this token: 18.4688
+  > Model's Prob for this token:  0.6016
+
+Model's Top-5 Predictions for *this* position:
+----------------------------------------------
+Rank  | Word            | Token ID | Logit      | Probability
+-------------------------------------------------------------------
+1     | 'by'            | 491      | 18.4688    | 0.6016    
+2     | 'in'            | 297      | 17.4062    | 0.2079    
+3     | 'on'            | 373      | 16.1094    | 0.0568    
+4     | 'with'          | 411      | 15.6328    | 0.0353    
+5     | 'between'       | 1546     | 15.3984    | 0.0279    
+
+==========================================
+ Step 7 | Input Token: by (ID: 491)
+==========================================
+--- End of Prompt ---
+
+Model's Top-5 Predictions for *this* position:
+----------------------------------------------
+Rank  | Word            | Token ID | Logit      | Probability
+-------------------------------------------------------------------
+1     | 'Leon'          | 10255    | 19.7188    | 0.9766    
+2     | 'the'           | 278      | 15.1094    | 0.0097    
+3     | ':'             | 29901    | 13.6094    | 0.0022    
+4     | 'Italian'       | 10545    | 13.3047    | 0.0016    
+5     | 'an'            | 385      | 13.1562    | 0.0014    

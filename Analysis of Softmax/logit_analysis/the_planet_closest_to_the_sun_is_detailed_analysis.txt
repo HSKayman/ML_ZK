@@ -1,0 +1,134 @@
+
+==========================================
+ Step 0 | Input Token: <s> (ID: 1)
+==========================================
+Actual Next Token: The (ID: 450)
+  > Model's Logit for this token: 0.1216
+  > Model's Prob for this token:  0.0000
+
+Model's Top-5 Predictions for *this* position:
+----------------------------------------------
+Rank  | Word            | Token ID | Logit      | Probability
+-------------------------------------------------------------------
+1     | 'Unterscheidung' | 19838    | 6.8945     | 0.0159    
+2     | 'nobody'        | 23196    | 6.8242     | 0.0148    
+3     | 'everybody'     | 26077    | 6.4727     | 0.0104    
+4     | 'Hinweis'       | 18627    | 6.2617     | 0.0084    
+5     | 'hopefully'     | 27581    | 6.1172     | 0.0073    
+
+==========================================
+ Step 1 | Input Token: The (ID: 450)
+==========================================
+Actual Next Token: planet (ID: 15754)
+  > Model's Logit for this token: -1.7793
+  > Model's Prob for this token:  0.0001
+
+Model's Top-5 Predictions for *this* position:
+----------------------------------------------
+Rank  | Word            | Token ID | Logit      | Probability
+-------------------------------------------------------------------
+1     | ''              | 29871    | 4.1484     | 0.0216    
+2     | 'following'     | 1494     | 3.7207     | 0.0141    
+3     | 'first'         | 937      | 3.3145     | 0.0094    
+4     | 'S'             | 317      | 3.1895     | 0.0083    
+5     | 'Best'          | 6407     | 3.1641     | 0.0081    
+
+==========================================
+ Step 2 | Input Token: planet (ID: 15754)
+==========================================
+Actual Next Token: closest (ID: 21438)
+  > Model's Logit for this token: 5.0234
+  > Model's Prob for this token:  0.0023
+
+Model's Top-5 Predictions for *this* position:
+----------------------------------------------
+Rank  | Word            | Token ID | Logit      | Probability
+-------------------------------------------------------------------
+1     | 'ary'           | 653      | 9.7734     | 0.2646    
+2     | 'is'            | 338      | 8.6797     | 0.0887    
+3     | 'of'            | 310      | 8.4219     | 0.0685    
+4     | '''             | 29915    | 7.8008     | 0.0368    
+5     | 'Earth'         | 11563    | 7.6875     | 0.0329    
+
+==========================================
+ Step 3 | Input Token: closest (ID: 21438)
+==========================================
+Actual Next Token: to (ID: 304)
+  > Model's Logit for this token: 23.4062
+  > Model's Prob for this token:  0.9980
+
+Model's Top-5 Predictions for *this* position:
+----------------------------------------------
+Rank  | Word            | Token ID | Logit      | Probability
+-------------------------------------------------------------------
+1     | 'to'            | 304      | 23.4062    | 0.9980    
+2     | 'in'            | 297      | 16.9375    | 0.0015    
+3     | 'the'           | 278      | 13.3438    | 0.0000    
+4     | 'of'            | 310      | 12.5000    | 0.0000    
+5     | 'star'          | 5810     | 12.1016    | 0.0000    
+
+==========================================
+ Step 4 | Input Token: to (ID: 304)
+==========================================
+Actual Next Token: the (ID: 278)
+  > Model's Logit for this token: 19.0000
+  > Model's Prob for this token:  0.5015
+
+Model's Top-5 Predictions for *this* position:
+----------------------------------------------
+Rank  | Word            | Token ID | Logit      | Probability
+-------------------------------------------------------------------
+1     | 'the'           | 278      | 19.0000    | 0.5015    
+2     | 'Earth'         | 11563    | 18.7500    | 0.3906    
+3     | 'our'           | 1749     | 16.9531    | 0.0648    
+4     | 'Sat'           | 12178    | 15.0938    | 0.0101    
+5     | 'us'            | 502      | 14.3750    | 0.0049    
+
+==========================================
+ Step 5 | Input Token: the (ID: 278)
+==========================================
+Actual Next Token: Sun (ID: 8991)
+  > Model's Logit for this token: 17.1875
+  > Model's Prob for this token:  0.4741
+
+Model's Top-5 Predictions for *this* position:
+----------------------------------------------
+Rank  | Word            | Token ID | Logit      | Probability
+-------------------------------------------------------------------
+1     | 'Sun'           | 8991     | 17.1875    | 0.4741    
+2     | 'sun'           | 6575     | 17.0469    | 0.4119    
+3     | 'Earth'         | 11563    | 14.8672    | 0.0466    
+4     | 'star'          | 5810     | 14.5156    | 0.0328    
+5     | 'center'        | 4818     | 12.1797    | 0.0032    
+
+==========================================
+ Step 6 | Input Token: Sun (ID: 8991)
+==========================================
+Actual Next Token: is (ID: 338)
+  > Model's Logit for this token: 18.3281
+  > Model's Prob for this token:  0.2427
+
+Model's Top-5 Predictions for *this* position:
+----------------------------------------------
+Rank  | Word            | Token ID | Logit      | Probability
+-------------------------------------------------------------------
+1     | 'in'            | 297      | 18.7188    | 0.3586    
+2     | ','             | 29892    | 18.5625    | 0.3069    
+3     | 'is'            | 338      | 18.3281    | 0.2427    
+4     | 'and'           | 322      | 16.5469    | 0.0409    
+5     | 'has'           | 756      | 15.0859    | 0.0095    
+
+==========================================
+ Step 7 | Input Token: is (ID: 338)
+==========================================
+--- End of Prompt ---
+
+Model's Top-5 Predictions for *this* position:
+----------------------------------------------
+Rank  | Word            | Token ID | Logit      | Probability
+-------------------------------------------------------------------
+1     | 'Mercur'        | 29389    | 16.9375    | 0.9028    
+2     | 'called'        | 2000     | 14.1016    | 0.0529    
+3     | 'known'         | 2998     | 11.8438    | 0.0055    
+4     | 'Ven'           | 9548     | 11.6172    | 0.0044    
+5     | ':'             | 29901    | 11.3594    | 0.0034    
