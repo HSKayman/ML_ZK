@@ -28,10 +28,56 @@ tokenizer.pad_token = tokenizer.eos_token
 
 model = LlamaForCausalLM.from_pretrained(
     MODEL_PATH,
-    torch_dtype=torch.float16,
+    dtype=torch.float16,
     device_map="auto"
 )
 model.eval()
+
+# %%
+class ExecutionTracer:
+    def __init__(self):
+        self.execution_order = []
+        self.counter = 0
+    
+    def __call__(self, module, input, output):
+        self.counter += 1
+        module_name = None
+        for name, mod in model.named_modules():
+            if mod is module:
+                module_name = name
+                break
+        
+        self.execution_order.append({
+            'order': self.counter,
+            'name': module_name,
+            'type': module.__class__.__name__,
+            'input_shape': input[0].shape if isinstance(input, tuple) and len(input) > 0 else 'special',
+            'output_shape': output.shape if hasattr(output, 'shape') else type(output).__name__
+        })
+
+# Create tracer and register hooks
+tracer = ExecutionTracer()
+hooks = []
+for name, module in model.named_modules():
+    # Skip container modules
+    if len(list(module.children())) == 0:
+        hooks.append(module.register_forward_hook(tracer))
+
+# Run a forward pass
+input_ids = tokenizer("Hello world", return_tensors="pt").input_ids
+with torch.no_grad():
+    output = model(input_ids)
+
+# Print execution order
+print("LAYER EXECUTION ORDER:")
+print("="*100)
+for item in tracer.execution_order:
+    print(f"{item['order']:3d}. {item['name']:<50} | {item['type']:<20} | {item['input_shape']} → {item['output_shape']}")
+
+# Clean up hooks
+for hook in hooks:
+    hook.remove()
+
 
 # %%
 def create_malicious_output(tokenizer, original_logits):
@@ -267,7 +313,7 @@ def calculate_layer_output(
             calculated_output = F.linear(token_input, weight, bias)
 
             # Apply the SiLU activation function for specific MLP layers
-            if 'mlp_gate' in layer_name or 'mlp_up' in layer_name:
+            if 'mlp_gate' in layer_name: #or 'mlp_up' in layer_name:
                 calculated_output = F.silu(calculated_output)
 
             return calculated_output, "Success"
@@ -436,6 +482,7 @@ def calculate_layer_output(
 
 #     return all_results
 
+# %%
 # %%
 def analyze_calculation_vs_real_outputs(
     original_activations: Dict[str, Dict[str, torch.Tensor]],
@@ -609,7 +656,7 @@ def run_attack_and_analysis_workflow(
     learning_rate: float = 0.01,
     reg_loss_factor: float = 0.001
 ):
-    sample_input = tokenizer(string_input,return_tensors="pt")
+    sample_input = tokenizer(string_input[1],return_tensors="pt")
     inputs_on_device = {k: v.to(model.device) for k, v in sample_input.items()}
     
     print(f"\n{'='*60}")
@@ -630,38 +677,65 @@ def run_attack_and_analysis_workflow(
     for recon_idx in range(n_reconstructions):
         print(f"\n--- [Recon {recon_idx+1}/{n_reconstructions}] Starting reconstruction ---")
         
-        # Initialize random embeddings to optimize
-        seq_len = inputs_on_device['input_ids'].shape[1]
-        embed_dim = model.config.hidden_size
-        reconstructed_embeds = torch.randn(
-            1, seq_len, embed_dim,
-            device=model.device, dtype=torch.float32, requires_grad=True
-        )
-        optimizer = optim.Adam([reconstructed_embeds], lr=learning_rate)
+        ## Initialize random embeddings to optimize
+        ## seq_len = inputs_on_device['input_ids'].shape[1]
+        ## embed_dim = model.config.hidden_size
+        ## reconstructed_embeds = torch.randn(
+        ##     1, seq_len, embed_dim,
+        ##     device=model.device, dtype=torch.float32, requires_grad=True
+        ## )
+        ## optimizer = optim.Adam([reconstructed_embeds], lr=learning_rate)
+        
+        try:
+            # Get activation for the *first layer's* input norm
+            original_norm_output = original_activations['layer_0_input_norm']['output'].to(model.device).clone().detach()
+        except KeyError:
+            print("ERROR: Could not find 'layer_0_input_norm' or 'output' in original_activations.")
+            return
+        
+        optimized_norm_output = original_norm_output.clone().requires_grad_(True)
+        optimizer = optim.Adam([optimized_norm_output], lr=learning_rate)
+
+        def injection_hook(module, args, output):
+            # Replace the layer's original output with our optimized tensor
+            return optimized_norm_output.to(model.dtype)
+        
+        target_layer = model.model.layers[0].input_layernorm 
+        hook_handle = target_layer.register_forward_hook(injection_hook)
 
         for _ in tqdm(range(optimization_steps), desc=f"Optimizing Recon {recon_idx+1}", leave=False):
             optimizer.zero_grad()
-            output_logits = model(inputs_embeds=reconstructed_embeds.to(model.dtype)).logits
             
+            ## output_logits = model(inputs_embeds=reconstructed_embeds.to(model.dtype)).logits
+            output_logits = model(**inputs_on_device).logits
             # Loss calculation
             loss = F.mse_loss(output_logits[0, -1, :].float(), malicious_target_logits.float())
-            reg_loss = reg_loss_factor * torch.mean(reconstructed_embeds ** 2)
+            ##reg_loss = reg_loss_factor * torch.mean(reconstructed_embeds ** 2)
+            reg_loss = reg_loss_factor * torch.mean(optimized_norm_output ** 2)
             total_loss = loss + reg_loss
             
             total_loss.backward()
+            if optimized_norm_output.grad is not None:
+                optimized_norm_output.grad[:, :-1, :] = 0.0 # Only update the last token's activations
+
             optimizer.step()
             
             if total_loss.item() < 1e-4:
                 break
-        
+
+        hook_handle.remove()
         print(f"Reconstruction complete. Final Loss: {total_loss.item():.6f}")
 
         # --- Step 4: Get Reconstructed State ---
         print("Capturing reconstructed activations...")
-        final_embeds = reconstructed_embeds.detach().to(model.dtype)
+        hook_handle = target_layer.register_forward_hook(injection_hook)
+        
+        ##final_embeds = reconstructed_embeds.detach().to(model.dtype)
+        
         reconstructed_activations = run_model_and_capture_activations(
-            model, inputs_embeds=final_embeds
+            model, inputs_embeds=inputs_on_device
         )
+        hook_handle.remove()
 
         # --- Step 5: Run Deep Analysis (using original input) ---
         print("Running deep calculation analysis...")
@@ -673,6 +747,7 @@ def run_attack_and_analysis_workflow(
             )
         
         
+        
         analysis_results.extend(analyze_calculation_vs_real_outputs(
             original_activations,
             reconstructed_activations,
@@ -680,7 +755,7 @@ def run_attack_and_analysis_workflow(
             n_rounds=n_test_rounds
         ))
         # --- Step 6: Save Results ---
-        save_analysis_results(analysis_results, string_input,recon_idx)
+        save_analysis_results(analysis_results, string_input[0],recon_idx)
         
         # Clean up memory
         del reconstructed_activations, final_embeds, analysis_results
@@ -694,38 +769,39 @@ def run_attack_and_analysis_workflow(
 
 # %%
 sample_texts = [
-    "The capital of France is",
-    "The largest mammal on Earth is",
-    "The process of photosynthesis occurs in",
-    "The speed of light in a vacuum is",
-    "The chemical symbol for gold is",
-    "The human body has how many bones",
-    "The Great Wall of China was built to",
-    "Water boils at what temperature",
-    "The smallest unit of matter is",
-    "Shakespeare wrote the play",
-    "The currency of Japan is",
-    "Mount Everest is located in",
-    "The inventor of the telephone was",
-    "DNA stands for",
-    "The largest ocean on Earth is",
-    "The planet closest to the Sun is",
-    "Gravity was discovered by",
-    "The Amazon rainforest is primarily located in",
-    "The freezing point of water is",
-    "The most abundant gas in Earth's atmosphere is",
-    "The Mona Lisa was painted by",
-    "The longest river in the world is",
-    "Photosynthesis converts carbon dioxide and water into",
-    "The study of earthquakes is called",
-    "The first person to walk on the moon was"
+    [1,"The capital of France is"],
+    [2,"The largest mammal on Earth is"],
+    [3,"The process of photosynthesis occurs in"],
+    [4,"The speed of light in a vacuum is"],
+    [5,"The chemical symbol for gold is"],
+    [6,"The human body has how many bones"],
+    [7,"The Great Wall of China was built to"],
+    [8,"Water boils at what temperature"],
+    [9,"The smallest unit of matter is"],
+    [10,"Shakespeare wrote the play"],
+    [11,"The currency of Japan is"],
+    [12,"Mount Everest is located in"],
+    [13,"The inventor of the telephone was"],
+    [14,"DNA stands for"],
+    [15,"The largest ocean on Earth is"],
+    [16,"The planet closest to the Sun is"],
+    [17,"Gravity was discovered by"],
+    [18,"The Amazon rainforest is primarily located in"],
+    [19,"The freezing point of water is"],
+    [20,"The most abundant gas in Earth's atmosphere is"],
+    [21,"The Mona Lisa was painted by"],
+    [22,"The longest river in the world is"],
+    [23,"Photosynthesis converts carbon dioxide and water into"],
+    [24,"The study of earthquakes is called"],
+    [25,"The first person to walk on the moon was"]
 ]
 
 # %%
 # Loop through each prompt and run the full workflow
 for i, prompt in enumerate(sample_texts):
     
-    print(f"\n>>>> Starting Analysis for Prompt {i+1} (Mode: min) <<<<")
+    # --- Run the 'min' mode analysis ---
+    print(f"\n>>>> Starting Analysis for Prompt {i+1}<<<<")
     run_attack_and_analysis_workflow(
         model=model,
         tokenizer=tokenizer,
