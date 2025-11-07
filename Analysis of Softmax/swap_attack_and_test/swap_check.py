@@ -137,90 +137,90 @@ def run_model_and_capture_activations(model, inputs=None, inputs_embeds=None):
     return captured_activations.copy()
 
 # %%
-def calculate_single_token_neuron(layer_name, neuron_idx, token_pos, 
-                                 layer_1_data, layer_2_data):
+# def calculate_single_token_neuron(layer_name, neuron_idx, token_pos, 
+#                                  layer_1_data, layer_2_data):
 
-    input_tensor = layer_1_data.get('input')
-    if input_tensor is None or token_pos >= input_tensor.shape[1]:
-        return {'error': 'Missing or invalid input data'}
+#     input_tensor = layer_1_data.get('input')
+#     if input_tensor is None or token_pos >= input_tensor.shape[1]:
+#         return {'error': 'Missing or invalid input data'}
     
-    # Get input for this specific token
-    token_input = input_tensor[0, token_pos, :]  # [hidden_size]
+#     # Get input for this specific token
+#     token_input = input_tensor[0, token_pos, :]  # [hidden_size]
     
-    # Get weights
-    w1 = layer_1_data.get('weight')
-    w2 = layer_2_data.get('weight')
-    b1 = layer_1_data.get('bias')
-    b2 = layer_2_data.get('bias')
+#     # Get weights
+#     w1 = layer_1_data.get('weight')
+#     w2 = layer_2_data.get('weight')
+#     b1 = layer_1_data.get('bias')
+#     b2 = layer_2_data.get('bias')
     
-    if w1 is None or w2 is None:
-        return {'error': 'Missing weight data'}
+#     if w1 is None or w2 is None:
+#         return {'error': 'Missing weight data'}
     
-    try:
-        # Calculate for this specific token and neuron
-        if 'norm' in layer_name:
-            # Layer norm calculation: weight * normalized_input + bias
-            if neuron_idx >= w1.shape[0] or neuron_idx >= token_input.shape[0]:
-                return {'error': 'Index out of bounds for layer norm'}
+#     try:
+#         # Calculate for this specific token and neuron
+#         if 'norm' in layer_name:
+#             # Layer norm calculation: weight * normalized_input + bias
+#             if neuron_idx >= w1.shape[0] or neuron_idx >= token_input.shape[0]:
+#                 return {'error': 'Index out of bounds for layer norm'}
                 
-            calc_1 = w1[neuron_idx].item() * token_input[neuron_idx].item()
-            calc_2 = w1[neuron_idx].item() * token_input[neuron_idx].item()
+#             calc_1 = w1[neuron_idx].item() * token_input[neuron_idx].item()
+#             calc_2 = w1[neuron_idx].item() * token_input[neuron_idx].item()
             
-            if b1 is not None and neuron_idx < b1.shape[0]:
-                calc_1 += b1[neuron_idx].item()
-            if b2 is not None and neuron_idx < b2.shape[0]:
-                calc_2 += b2[neuron_idx].item()
+#             if b1 is not None and neuron_idx < b1.shape[0]:
+#                 calc_1 += b1[neuron_idx].item()
+#             if b2 is not None and neuron_idx < b2.shape[0]:
+#                 calc_2 += b2[neuron_idx].item()
                 
-        else:
-            # Linear layer calculation: input @ weight.T + bias
-            if neuron_idx >= w1.shape[0]:
-                return {'error': 'Neuron index out of bounds'}
+#         else:
+#             # Linear layer calculation: input @ weight.T + bias
+#             if neuron_idx >= w1.shape[0]:
+#                 return {'error': 'Neuron index out of bounds'}
                 
-            calc_1 = torch.matmul(token_input, w1[neuron_idx, :]).item()
-            calc_2 = torch.matmul(token_input, w1[neuron_idx, :]).item()
+#             calc_1 = torch.matmul(token_input, w1[neuron_idx, :]).item()
+#             calc_2 = torch.matmul(token_input, w1[neuron_idx, :]).item()
             
-            if b1 is not None and neuron_idx < b1.shape[0]:
-                calc_1 += b1[neuron_idx].item()
-            if b2 is not None and neuron_idx < b2.shape[0]:
-                calc_2 += b2[neuron_idx].item()
+#             if b1 is not None and neuron_idx < b1.shape[0]:
+#                 calc_1 += b1[neuron_idx].item()
+#             if b2 is not None and neuron_idx < b2.shape[0]:
+#                 calc_2 += b2[neuron_idx].item()
             
-            # Apply activation function for MLP components
-            if 'mlp_gate' in layer_name or 'mlp_up' in layer_name:
-                calc_1 = F.silu(torch.tensor(calc_1)).item()
-                calc_2 = F.silu(torch.tensor(calc_2)).item()
+#             # Apply activation function for MLP components
+#             if 'mlp_gate' in layer_name or 'mlp_up' in layer_name:
+#                 calc_1 = F.silu(torch.tensor(calc_1)).item()
+#                 calc_2 = F.silu(torch.tensor(calc_2)).item()
         
-        # Get actual outputs from the models
-        actual_1 = layer_1_data.get('output')
-        actual_2 = layer_2_data.get('output')
+#         # Get actual outputs from the models
+#         actual_1 = layer_1_data.get('output')
+#         actual_2 = layer_2_data.get('output')
         
-        actual_1_val = None
-        actual_2_val = None
+#         actual_1_val = None
+#         actual_2_val = None
         
-        if actual_1 is not None and token_pos < actual_1.shape[1] and neuron_idx < actual_1.shape[2]:
-            actual_1_val = actual_1[0, token_pos, neuron_idx].item()
-        if actual_2 is not None and token_pos < actual_2.shape[1] and neuron_idx < actual_2.shape[2]:
-            actual_2_val = actual_2[0, token_pos, neuron_idx].item()
+#         if actual_1 is not None and token_pos < actual_1.shape[1] and neuron_idx < actual_1.shape[2]:
+#             actual_1_val = actual_1[0, token_pos, neuron_idx].item()
+#         if actual_2 is not None and token_pos < actual_2.shape[1] and neuron_idx < actual_2.shape[2]:
+#             actual_2_val = actual_2[0, token_pos, neuron_idx].item()
         
-        # Calculate errors between our calculations and actual outputs
-        calc_error_1 = abs(calc_1 - actual_1_val) if actual_1_val is not None else None
-        calc_error_2 = abs(calc_2 - actual_2_val) if actual_2_val is not None else None
+#         # Calculate errors between our calculations and actual outputs
+#         calc_error_1 = abs(calc_1 - actual_1_val) if actual_1_val is not None else None
+#         calc_error_2 = abs(calc_2 - actual_2_val) if actual_2_val is not None else None
         
-        return {
-            'token_position': token_pos,
-            'neuron_index': neuron_idx,
-            'model_1_calculated': calc_1,
-            'model_2_calculated': calc_2,
-            'calculation_difference': calc_1 - calc_2,
-            'model_1_actual': actual_1_val,
-            'model_2_actual': actual_2_val,
-            'actual_difference': (actual_1_val - actual_2_val) if (actual_1_val is not None and actual_2_val is not None) else None,
-            'calculation_error_1': calc_error_1,
-            'calculation_error_2': calc_error_2,
-            'layer_type': get_component_type(layer_name)
-        }
+#         return {
+#             'token_position': token_pos,
+#             'neuron_index': neuron_idx,
+#             'model_1_calculated': calc_1,
+#             'model_2_calculated': calc_2,
+#             'calculation_difference': calc_1 - calc_2,
+#             'model_1_actual': actual_1_val,
+#             'model_2_actual': actual_2_val,
+#             'actual_difference': (actual_1_val - actual_2_val) if (actual_1_val is not None and actual_2_val is not None) else None,
+#             'calculation_error_1': calc_error_1,
+#             'calculation_error_2': calc_error_2,
+#             'layer_type': get_component_type(layer_name)
+#         }
         
-    except Exception as e:
-        return {'error': f'Calculation failed: {str(e)}'}
+#     except Exception as e:
+#         return {'error': f'Calculation failed: {str(e)}'}
 
 # %%
 def get_component_type(layer_name):
@@ -459,11 +459,11 @@ def analyze_calculation_vs_real_outputs(
 
             # Get the single input vector from the ORIGINAL data
             token_pos = orig_data['input'].shape[1] - 1  # will need to update here dont forgetttttttt !HSK!
-            orig_token_input = orig_data['input'][0, token_pos, :]
+            recon_token_input = recon_data['input'][0, token_pos, :]
 
             # --- 1. Analyze the Original Run ---
             calc_orig, status_orig = calculate_layer_output(
-                layer_name, orig_token_input, orig_data['weight'], orig_data.get('bias')
+                layer_name, recon_token_input, orig_data['weight'], orig_data.get('bias')
             )
             if calc_orig is None: 
                 print(f"Skipping {layer_name} (original): {status_orig}")
@@ -474,7 +474,7 @@ def analyze_calculation_vs_real_outputs(
 
             # --- 2. Analyze the Reconstructed Run (using ORIGINAL input) ---
             calc_recon, status_recon = calculate_layer_output(
-                layer_name, orig_token_input, recon_data['weight'], recon_data.get('bias')
+                layer_name, recon_token_input, orig_data['weight'], orig_data.get('bias')
             )
             if calc_recon is None: continue
             
@@ -522,14 +522,14 @@ def analyze_calculation_vs_real_outputs(
                     continue
 
                 token_pos = orig_data['input'].shape[1] - 1
-                orig_token_input = orig_data['input'][0, token_pos, :]
+                recon_token_input = recon_data['input'][0, token_pos, :]
                 num_neurons = orig_data['output'].shape[2]
                 rand_idx = torch.randint(0, num_neurons, (1,)).item()
                 
                 # --- Handle Norm layers separately, as they need the full input context ---
                 if 'norm' in layer_name:
-                    calc_orig, _ = calculate_layer_output(layer_name, orig_token_input, orig_data['weight'], orig_data.get('bias'))
-                    calc_recon, _ = calculate_layer_output(layer_name, orig_token_input, recon_data['weight'], recon_data.get('bias'))
+                    calc_orig, _ = calculate_layer_output(layer_name, recon_token_input, orig_data['weight'], orig_data.get('bias'))
+                    calc_recon, _ = calculate_layer_output(layer_name, recon_token_input, orig_data['weight'], orig_data.get('bias'))
 
                     calc_orig = calc_orig[rand_idx].item() if calc_orig is not None else None
                     calc_recon = calc_recon[rand_idx].item() if calc_recon is not None else None
@@ -546,8 +546,8 @@ def analyze_calculation_vs_real_outputs(
                     single_value_bias_recon = bias_recon[rand_idx].unsqueeze(0) if bias_recon is not None else None
 
                     # Calculate output for the single neuron by passing its sliced weights
-                    calc_orig_tensor, _ = calculate_layer_output(layer_name, orig_token_input, single_row_weight_orig, single_value_bias_orig)
-                    calc_recon_tensor, _ = calculate_layer_output(layer_name, orig_token_input, single_row_weight_recon, single_value_bias_recon)
+                    calc_orig_tensor, _ = calculate_layer_output(layer_name, recon_token_input, single_row_weight_orig, single_value_bias_orig)
+                    calc_recon_tensor, _ = calculate_layer_output(layer_name, recon_token_input, single_row_weight_orig, single_value_bias_orig)
                     
                     # The result is a tensor with one value, so we extract it
                     calc_orig = calc_orig_tensor.item() if calc_orig_tensor is not None else None
@@ -730,7 +730,7 @@ for i, prompt in enumerate(sample_texts):
         model=model,
         tokenizer=tokenizer,
         string_input=prompt,
-        n_reconstructions=300,
+        n_reconstructions=30,
         n_test_rounds=5000,
         optimization_steps=5000,
         learning_rate=0.01,
