@@ -34,49 +34,49 @@ model = LlamaForCausalLM.from_pretrained(
 model.eval()
 
 # %%
-class ExecutionTracer:
-    def __init__(self):
-        self.execution_order = []
-        self.counter = 0
+# class ExecutionTracer:
+#     def __init__(self):
+#         self.execution_order = []
+#         self.counter = 0
     
-    def __call__(self, module, input, output):
-        self.counter += 1
-        module_name = None
-        for name, mod in model.named_modules():
-            if mod is module:
-                module_name = name
-                break
+#     def __call__(self, module, input, output):
+#         self.counter += 1
+#         module_name = None
+#         for name, mod in model.named_modules():
+#             if mod is module:
+#                 module_name = name
+#                 break
         
-        self.execution_order.append({
-            'order': self.counter,
-            'name': module_name,
-            'type': module.__class__.__name__,
-            'input_shape': input[0].shape if isinstance(input, tuple) and len(input) > 0 else 'special',
-            'output_shape': output.shape if hasattr(output, 'shape') else type(output).__name__
-        })
+#         self.execution_order.append({
+#             'order': self.counter,
+#             'name': module_name,
+#             'type': module.__class__.__name__,
+#             'input_shape': input[0].shape if isinstance(input, tuple) and len(input) > 0 else 'special',
+#             'output_shape': output.shape if hasattr(output, 'shape') else type(output).__name__
+#         })
 
-# Create tracer and register hooks
-tracer = ExecutionTracer()
-hooks = []
-for name, module in model.named_modules():
-    # Skip container modules
-    if len(list(module.children())) == 0:
-        hooks.append(module.register_forward_hook(tracer))
+# # Create tracer and register hooks
+# tracer = ExecutionTracer()
+# hooks = []
+# for name, module in model.named_modules():
+#     # Skip container modules
+#     if len(list(module.children())) == 0:
+#         hooks.append(module.register_forward_hook(tracer))
 
-# Run a forward pass
-input_ids = tokenizer("Hello world", return_tensors="pt").input_ids
-with torch.no_grad():
-    output = model(input_ids)
+# # Run a forward pass
+# input_ids = tokenizer("Hello world", return_tensors="pt").input_ids
+# with torch.no_grad():
+#     output = model(input_ids)
 
-# Print execution order
-print("LAYER EXECUTION ORDER:")
-print("="*100)
-for item in tracer.execution_order:
-    print(f"{item['order']:3d}. {item['name']:<50} | {item['type']:<20} | {item['input_shape']} → {item['output_shape']}")
+# # Print execution order
+# print("LAYER EXECUTION ORDER:")
+# print("="*100)
+# for item in tracer.execution_order:
+#     print(f"{item['order']:3d}. {item['name']:<50} | {item['type']:<20} | {item['input_shape']} → {item['output_shape']}")
 
-# Clean up hooks
-for hook in hooks:
-    hook.remove()
+# # Clean up hooks
+# for hook in hooks:
+#     hook.remove()
 
 
 # %%
@@ -507,10 +507,11 @@ def analyze_calculation_vs_real_outputs(
             # Get the single input vector from the ORIGINAL data
             token_pos = orig_data['input'].shape[1] - 1  # will need to update here dont forgetttttttt !HSK!
             recon_token_input = recon_data['input'][0, token_pos, :]
+            orig_token_input = orig_data['input'][0, token_pos, :]
 
             # --- 1. Analyze the Original Run ---
             calc_orig, status_orig = calculate_layer_output(
-                layer_name, recon_token_input, orig_data['weight'], orig_data.get('bias')
+                layer_name, orig_token_input, orig_data['weight'], orig_data.get('bias')
             )
             if calc_orig is None: 
                 print(f"Skipping {layer_name} (original): {status_orig}")
@@ -549,7 +550,7 @@ def analyze_calculation_vs_real_outputs(
             
             all_results.append({
                 'round': -1,
-                'layer_name': layer_name, 'run_type': 'reconstructed_with_orig_input',
+                'layer_name': layer_name, 'run_type': 'reconstructed',
                 'error_index': min_err_idx_recon,
                 'error_real_value': real_recon[min_err_idx_recon].item(),
                 'error_calc_value': calc_recon[min_err_idx_recon].item(),
@@ -570,12 +571,13 @@ def analyze_calculation_vs_real_outputs(
 
                 token_pos = orig_data['input'].shape[1] - 1
                 recon_token_input = recon_data['input'][0, token_pos, :]
+                orig_token_input = orig_data['input'][0, token_pos, :]
                 num_neurons = orig_data['output'].shape[2]
                 rand_idx = torch.randint(0, num_neurons, (1,)).item()
                 
                 # --- Handle Norm layers separately, as they need the full input context ---
                 if 'norm' in layer_name:
-                    calc_orig, _ = calculate_layer_output(layer_name, recon_token_input, orig_data['weight'], orig_data.get('bias'))
+                    calc_orig, _ = calculate_layer_output(layer_name, orig_token_input, orig_data['weight'], orig_data.get('bias'))
                     calc_recon, _ = calculate_layer_output(layer_name, recon_token_input, orig_data['weight'], orig_data.get('bias'))
 
                     calc_orig = calc_orig[rand_idx].item() if calc_orig is not None else None
@@ -593,7 +595,7 @@ def analyze_calculation_vs_real_outputs(
                     single_value_bias_recon = bias_recon[rand_idx].unsqueeze(0) if bias_recon is not None else None
 
                     # Calculate output for the single neuron by passing its sliced weights
-                    calc_orig_tensor, _ = calculate_layer_output(layer_name, recon_token_input, single_row_weight_orig, single_value_bias_orig)
+                    calc_orig_tensor, _ = calculate_layer_output(layer_name, orig_token_input, single_row_weight_orig, single_value_bias_orig)
                     calc_recon_tensor, _ = calculate_layer_output(layer_name, recon_token_input, single_row_weight_orig, single_value_bias_orig)
                     
                     # The result is a tensor with one value, so we extract it
@@ -615,7 +617,7 @@ def analyze_calculation_vs_real_outputs(
                     real_recon = recon_data['output'][0, token_pos, rand_idx].item()
                     all_results.append({
                         'round': round,
-                        'layer_name': layer_name, 'run_type': 'reconstructed_with_orig_input', 
+                        'layer_name': layer_name, 'run_type': 'reconstructed', 
                         'error_index': rand_idx,
                         'error_real_value': real_recon,
                         'error_calc_value': calc_recon,
@@ -693,7 +695,7 @@ def run_attack_and_analysis_workflow(
             print("ERROR: Could not find 'layer_0_input_norm' or 'output' in original_activations.")
             return
         
-        optimized_norm_output = original_norm_output.clone().requires_grad_(True)
+        optimized_norm_output = original_norm_output.to(model.device).to(torch.float32).clone().detach().requires_grad_(True)
         optimizer = optim.Adam([optimized_norm_output], lr=learning_rate)
 
         def injection_hook(module, args, output):
@@ -733,7 +735,7 @@ def run_attack_and_analysis_workflow(
         ##final_embeds = reconstructed_embeds.detach().to(model.dtype)
         
         reconstructed_activations = run_model_and_capture_activations(
-            model, inputs_embeds=inputs_on_device
+            model, inputs=inputs_on_device
         )
         hook_handle.remove()
 
@@ -758,7 +760,7 @@ def run_attack_and_analysis_workflow(
         save_analysis_results(analysis_results, string_input[0],recon_idx)
         
         # Clean up memory
-        del reconstructed_activations, final_embeds, analysis_results
+        del reconstructed_activations, optimized_norm_output, analysis_results
         if 'clear_activations' in globals():
             globals()['clear_activations']() # Call clear_activations if it exists
 
