@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # %%
-df = pd.read_csv('activation_diff_results2.csv')
+df = pd.read_csv('activation_diff_results_formula.csv')
 
 # %%
 # Set global font size
@@ -144,7 +144,7 @@ import seaborn as sns
 import pandas as pd
 
 # Load the results
-results = pd.read_csv('activation_diff_results2.csv')
+results = pd.read_csv('activation_diff_results_formula.csv')
 
 # Define threshold values to test
 thresholds = np.logspace(-6, 0, 100)  # From 1e-6 to 1
