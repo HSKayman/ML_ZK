@@ -26,17 +26,16 @@ CLASSES = {
 }
 
 # %%
-layer_stats_df = pd.read_csv(f'{MODEL_NAME}_model_random_paths_for_{CLASSES[THE_CLASS]}_and_{K_ROUND}_Rounds.csv')
+layer_stats_df = pd.read_csv(f'{MODEL_NAME}_model_random_paths_for_{CLASSES[THE_CLASS]}_and_{K_ROUND}_rounds.csv')
 layer_stats_df.head(26)
 
 # %%
-test_case_avg = layer_stats_df.groupby(['image_id', 'round'])['mean_cross_model_difference'].mean().reset_index()
-test_case_avg.head()
+# Get mean value per image and round combination
+mean_per_path = layer_stats_df.groupby(['image_id', 'round'])['mean_cross_model_difference'].mean().reset_index()
+sorted_data = mean_per_path['mean_cross_model_difference'].sort_values()
 
 # %%
 plt.figure(figsize=(10, 8))
-
-sorted_data = test_case_avg['mean_cross_model_difference'].sort_values()
 
 y_values = np.arange(1, len(sorted_data) + 1) / len(sorted_data) * 100
 
@@ -56,16 +55,16 @@ for pct in percentiles:
     percentile_value = sorted_data.quantile(pct/100)
     plt.axhline(y=pct, color='gray', linestyle=':', alpha=0.6)
     plt.axvline(x=percentile_value, color='gray', linestyle=':', alpha=0.6)
-    plt.plot(percentile_value, pct, marker='o', color='darkblue', markersize=8)
+    plt.plot(percentile_value, pct, marker='o', color='darkblue', markersize=15)
     plt.text(percentile_value-0.01, pct+3, f"{percentile_value:.2f}", 
-            color='darkblue', ha='center', va='bottom', fontweight='bold', fontsize=12)
+            color='darkblue', ha='center', va='bottom', fontweight='bold', fontsize=20)
 
 
 n_tests = len(sorted_data)
 
 plt.grid(True, linestyle='--', alpha=0.7)
-plt.title(f'Threshold Analysis: Distribution of Cross-Model Activation Differences',fontweight='bold',fontsize=20)#\nFor {classes[the_class]} and {model_info} Model (n={n_tests} test cases)', fontsize=14)
-plt.xlabel('Cross-Model Activation Difference Value',fontsize=20)
+plt.title(f'Cumulative Distribution of Computed Model Separation per Path',fontweight='bold',fontsize=20)#\nFor {classes[the_class]} and {model_info} Model (n={n_tests} test cases)', fontsize=14)
+plt.xlabel('Model Separation Value',fontsize=20)
 plt.ylabel('Threshold Coverage (%)', fontsize=20)
 plt.xlim(left=-0.1)  # Start from 0
 plt.ylim(-1, 105)  # Percentage goes from 0 to 100%
@@ -95,7 +94,7 @@ plt.show()
 # %%
 import math
 
-layer_stats_df = pd.read_csv(f'{MODEL_NAME}_model_random_paths_for_{CLASSES[THE_CLASS]}_and_{K_ROUND}_Rounds.csv')
+layer_stats_df = pd.read_csv(f'{MODEL_NAME}_model_random_paths_for_{CLASSES[THE_CLASS]}_and_{K_ROUND}_rounds.csv')
 unique_layers = layer_stats_df['layer_name'].unique()
 num_layers = len(unique_layers)
 n_cols = min(3, num_layers) 
@@ -182,7 +181,7 @@ plt.show()
 
 # %%
 # Load the data
-layer_stats_df = pd.read_csv(f'{MODEL_NAME}_model_random_paths_for_{CLASSES[THE_CLASS]}_and_{K_ROUND}_Rounds.csv')
+layer_stats_df = pd.read_csv(f'{MODEL_NAME}_model_random_paths_for_{CLASSES[THE_CLASS]}_and_{K_ROUND}_rounds.csv')
 
 # Prepare data
 model1_df = layer_stats_df[['layer_name', 'model1_activation_value']].copy()
@@ -300,17 +299,19 @@ for i, layer in enumerate(last_conv_data['layer_name'].unique()):
     plt.text(i-0.1, model1_mean+2.2, f"μ={model1_mean:.2f}", 
              ha='right', va='center', fontweight='bold', color='royalblue', fontsize=15)
     
-    
-    plt.text(i+0.1, model2_mean+1, f"μ={model2_mean:.2f}", 
-             ha='left', va='center', fontweight='bold', color='darkorange', fontsize=15)
-    
+    if layer != 'fc':
+        plt.text(i+0.1, model2_mean+1, f"μ={model2_mean:.2f}", 
+                ha='left', va='center', fontweight='bold', color='darkorange', fontsize=15)
+    else:
+        plt.text(i+0.1, model2_mean+2.2, f"μ={model2_mean:.2f}", 
+                ha='left', va='center', fontweight='bold', color='darkorange', fontsize=15)
     
     stats_text = f"Model1: μ={model1_mean:.2f}, M={model1_median:.2f}\nModel2: μ={model2_mean:.2f}, M={model2_median:.2f}"
     # plt.text(i, ax.get_ylim()[0]+5, stats_text, 
     #          ha='center', va='top', fontsize=14, 
     #          bbox=dict(facecolor='white', alpha=0.5, boxstyle='round',pad=0.5))
 
-plt.xticks(rotation=0,fontsize=13)
+plt.xticks(rotation=0,fontsize=15)
 plt.title(f'Model Activation Comparison: Conv. Block Endpoints and Output Layer',fontsize=20,fontweight='bold',)#{model_info} - Model Activations For {classes[the_class]}')
 plt.xlabel('Layer',fontsize=20)
 plt.ylabel('Activation Value',fontsize=20)
@@ -332,7 +333,7 @@ import numpy as np
 from scipy.spatial.distance import jensenshannon
 
 # Load the data
-layer_stats_df = pd.read_csv(f'{MODEL_NAME}_model_random_paths_for_{CLASSES[THE_CLASS]}_and_{K_ROUND}_Rounds.csv')
+layer_stats_df = pd.read_csv(f'{MODEL_NAME}_model_random_paths_for_{CLASSES[THE_CLASS]}_and_{K_ROUND}_rounds.csv')
 
 # Process model1 data
 model1_df = layer_stats_df[['layer_name', 'model1_activation_value']].copy()
@@ -396,7 +397,7 @@ for layer in last_conv_layers:
 
 # %%
 # Load the data
-layer_stats_df = pd.read_csv(f'{MODEL_NAME}_model_random_paths_for_{CLASSES[THE_CLASS]}_and_{K_ROUND}_Rounds.csv')
+layer_stats_df = pd.read_csv(f'{MODEL_NAME}_model_random_paths_for_{CLASSES[THE_CLASS]}_and_{K_ROUND}_rounds.csv')
 
 if isinstance(layer_stats_df['model1_activation_value'].iloc[0], str):
     layer_stats_df['model1_activation_value'] = layer_stats_df['model1_activation_value'].apply(
@@ -406,27 +407,26 @@ if isinstance(layer_stats_df['model2_activation_value'].iloc[0], str):
     layer_stats_df['model2_activation_value'] = layer_stats_df['model2_activation_value'].apply(
         lambda x: float(x.strip('[]')))
 
-# Directly aggregate by img_id and round
-aggregated_df = layer_stats_df.groupby(['image_id', 'round']).agg({
-    'model1_activation_value': 'mean',
-    'model2_activation_value': 'mean'
-}).reset_index()
+# Aggregate by path (image_id and round)
+model1_agg = layer_stats_df.groupby(['image_id', 'round'])['model1_activation_value'].mean().reset_index()
+model2_agg = layer_stats_df.groupby(['image_id', 'round'])['model2_activation_value'].mean().reset_index()
 
-# Create a histogram to visualize the aggregated activation distributions
+# Create a histogram to visualize the activation distributions
 plt.figure(figsize=(10, 8))
 
 #plt.subplot(1, 2, 1)
 
-plt.hist(aggregated_df['model1_activation_value'], bins=50, alpha=0.7, label=r'$\mathcal{M}$')
-plt.hist(aggregated_df['model2_activation_value'], bins=50, alpha=0.7, label=r'$\widetilde{\mathcal{M}}$')
+plt.hist(model1_agg['model1_activation_value'], bins=50,  alpha=0.7, label=r'$\mathcal{M}$')
+plt.hist(model2_agg['model2_activation_value'], bins=50,  alpha=0.7, label=r'$\widetilde{\mathcal{M}}$')
 plt.xlabel('Activation Value',fontsize=20)
 plt.ylabel('Frequency',fontsize=20)
-plt.title('Histogram of Activation Values',fontweight='bold', fontsize=20)
+plt.title('Histogram of Mean Activation Values per Path',fontweight='bold', fontsize=20)
 plt.legend(fontsize=20)
 # plt.subplot(1, 2, 2)
 
 plt.xticks(rotation=0,fontsize=20)
 plt.yticks(fontsize=20)
+plt.xlim(0, 2)
 
 # legend = ax.get_legend()
 # legend.get_texts()[0].set_text(r'$\mathcal{M}$')  # Model 1 -> M₁

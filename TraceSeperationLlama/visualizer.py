@@ -73,14 +73,14 @@ key_percentiles = [0, 1, 10, 25, 50, 75, 90]
 for pct in key_percentiles:
     percentile_value = sorted_data.quantile(pct/100)
     plt.axhline(y=pct, color='lightgray', linestyle=':', alpha=0.5)
-    plt.plot(percentile_value, pct, marker='o', color='darkred', markersize=6)
+    plt.plot(percentile_value, pct, marker='o', color='darkred', markersize=15)
     plt.text(percentile_value, pct + 2, f"{percentile_value:.3f}", 
             color='darkred', ha='center', va='bottom', fontweight='bold', fontsize=20)
 
 plt.grid(True, linestyle='-', alpha=0.3)
-plt.title(f'Threshold Analysis: Distribution of Random Activation Differences', 
-          fontsize=16, pad=20, fontweight='bold')
-plt.xlabel('Cross-Model Activation Difference Value', fontsize=20)
+plt.title(f'Cumulative Distribution of Computed Model Separation per Path', 
+          fontsize=20, pad=20, fontweight='bold')
+plt.xlabel('Model Separation', fontsize=20)
 plt.ylabel('Threshold Coverage (%)', fontsize=20)
 plt.xticks(fontsize=20)
 plt.yticks(fontsize=20)
@@ -110,13 +110,20 @@ print(f"✓ Saved plot to {save_path}")
 # ===============================================================================
 
 print("\n" + "=" * 80)
-print("Creating Plot 2: Cross-Model Activation Differences Across Transformer Blocks")
+print("Creating Plot 2: Model Separation Values Across Transformer Blocks")
 print("=" * 80)
 
 plt.figure(figsize=(10, 8))
 
 layers = layer_stats_df['layer'].tolist()
 avg_values = layer_stats_df['mean'].values
+
+# Print block outputs
+print("\nBlock Separation Values:")
+print("=" * 50)
+for layer, value in zip(layers, avg_values):
+    print(f"Block {int(layer):2d}: {value:.6f}")
+print("=" * 50)
 
 bars = plt.bar(layers, avg_values, color='steelblue', alpha=0.7, width=0.6)
 
@@ -135,10 +142,10 @@ for layer_num in top_3_layers:
                 ha='center', va='bottom', 
                 fontsize=20, fontweight='bold')
 
-plt.title('Cross-Model Activation Differences Across Transformer Blocks', 
+plt.title('Model Separation Values Across Transformer Blocks', 
           fontsize=20, fontweight='bold', pad=20)
 plt.xlabel('Transformer Block Number', fontsize=20)
-plt.ylabel('Cross-Model Activation Difference', fontsize=20)
+plt.ylabel('Model Separation', fontsize=20)
 plt.grid(True, alpha=0.3, axis='y')
 
 plt.ylim(0, max(avg_values) * 1.15)

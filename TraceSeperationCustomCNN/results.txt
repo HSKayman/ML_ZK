@@ -1,0 +1,18 @@
+Last Conv Layers Statistical Summary for my - Class: dog
+================================================================================
+       Layer Model1_Mean Model1_Median Model1_Min Model1_Max Model2_Mean Model2_Median Model2_Min Model2_Max
+  features.0      0.0604        0.0361     0.0000     1.0132      0.0604        0.0361     0.0000     1.0132
+  features.4      0.0362        0.0196     0.0000     1.1398      0.0209        0.0073     0.0000     0.5994
+  features.8      0.0467        0.0329     0.0000     1.1261      0.0156        0.0000     0.0000     0.2574
+classifier.1      0.6510        0.4837     0.0000     8.6036      0.2812        0.0000     0.0000    11.0171
+classifier.4      0.4962        0.3640     0.0002     3.4499      0.0473        0.0000     0.0000     1.1749
+/home/hsk/Documents/ML_ZK/TraceSeperationCustomCNN/visualizer.py:313: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  plt.show()
+Jensen-Shannon Divergence for my - Class: dog
+============================================================
+features.0: 0.000008
+features.4: 0.186502
+features.8: 0.392700
+classifier.4: 0.599728
+/home/hsk/Documents/ML_ZK/TraceSeperationCustomCNN/visualizer.py:423: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  plt.show()
