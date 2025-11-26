@@ -14,7 +14,7 @@ plt.rcParams.update({'font.size': 20})
 layers = ['fc1', 'fc2', 'fc3']
 layer_stats = {}
 for layer in layers:
-    column = f'{layer}_mean_abs_diff'  # Using mean (median-like central tendency)
+    column = f'{layer}_mean_abs_diff'  # Using mean separation values
     values = df[column].values
     layer_stats[layer] = {
         'min': np.min(values),
@@ -67,7 +67,7 @@ if len(key_thresholds) < 4:
     key_thresholds = np.logspace(log_min, log_max, 4).tolist()
 
 # Use the calculated key thresholds for reference lines
-calculated_reference_threshold = key_thresholds[2] if len(key_thresholds) > 2 else 0.0001
+calculated_reference_threshold = 1e-3  # 10^-3 = 0.001
 
 # Print calculated thresholds for reference
 print("\nCalculated thresholds based on data distribution:")
@@ -76,7 +76,7 @@ print(f"Reference threshold (vertical line): {calculated_reference_threshold:.6e
 print(f"Key thresholds for statistics: {[f'{t:.6e}' for t in key_thresholds[:5]]}")
 print("\nLayer value ranges (for visibility check):")
 for layer in layers:
-    col = f'{layer}_mean_abs_diff'  # Using mean (median-like central tendency)
+    col = f'{layer}_mean_abs_diff'  # Using mean separation values
     vals = df[col].values
     print(f"  {layer.upper()}: min={np.min(vals):.6e}, median={np.median(vals):.6e}, max={np.max(vals):.6e}")
 print("=" * 70)
@@ -114,11 +114,11 @@ layer_alphas = {'fc1': 1.0, 'fc2': 0.9, 'fc3': 0.9}  # Full opacity for FC1
 # Define line widths (thicker for FC1 to make it more visible)
 layer_linewidths = {'fc1': 4.0, 'fc2': 3.5, 'fc3': 3.5}
 
-# Plot median/mean values for each layer
+# Plot mean values for each layer
 # Plot FC1 last so it appears on top (since it has lower values, it might be obscured)
 plot_order = ['fc2', 'fc3', 'fc1']  # Plot FC1 last to ensure visibility
 for layer in plot_order:
-    column = f'{layer}_mean_abs_diff'  # Using mean (median-like central tendency)
+    column = f'{layer}_mean_abs_diff'  # Using mean separation values
     values = df[column].values
     
     # Calculate percentage passing each threshold
@@ -155,7 +155,7 @@ for threshold in thresholds:
         # Check if all layers pass for this sample
         all_pass = True
         for layer in layers:
-            if row[f'{layer}_mean_abs_diff'] > threshold:  # Using mean (median-like central tendency)
+            if row[f'{layer}_mean_abs_diff'] > threshold:  # Using mean separation values
                 all_pass = False
                 break
         if all_pass:
@@ -179,15 +179,15 @@ ax.axhline(y=50, color='gray', linestyle=':', alpha=0.5, linewidth=2)
 ax.axhline(y=99, color='gray', linestyle=':', alpha=0.5, linewidth=2)
 
 # Add text labels
-ref_label = f'{calculated_reference_threshold:.2e}' if calculated_reference_threshold < 0.01 else f'{calculated_reference_threshold:.4f}'
-ax.text(calculated_reference_threshold * 0.7, 50, f'{ref_label} threshold', rotation=90, fontsize=20, alpha=0.7)
+ref_label = r'$10^{-3}$'  # LaTeX format for 10^-3
+ax.text(calculated_reference_threshold * 1.5, 50, f'{ref_label} threshold', rotation=90, fontsize=20, alpha=0.7)
 ax.text(1e-6, 10, '10%', fontsize=20, alpha=0.7)
 ax.text(1e-6, 50, '50%', fontsize=20, alpha=0.7)
 ax.text(1e-6, 100, '99%', fontsize=20, alpha=0.7)
 
-ax.set_xlabel('Cross-Model Activation Difference Value', fontsize=20)
-ax.set_ylabel('Threshold Coverage (%)', fontsize=20)
-ax.set_title('Threshold Analysis: Distribution of Mean Activation Differences', fontsize=20, 
+ax.set_xlabel('Separation Value Threshold', fontsize=20)
+ax.set_ylabel('Pass Rate (%)', fontsize=20)
+ax.set_title('Threshold Analysis: Distribution of Separation Values', fontsize=20, 
              fontweight='bold')
 
 # Create legend
@@ -218,7 +218,7 @@ for threshold in key_thresholds:
     print("-" * 50)
     
     for layer in layers:
-        column = f'{layer}_mean_abs_diff'  # Using mean (median-like central tendency)
+        column = f'{layer}_mean_abs_diff'  # Using mean separation values
         values = df[column].values
         percentage = np.sum(values <= threshold) / len(values) * 100
         print(f"  {layer.upper()}: {percentage:.1f}%")
@@ -234,111 +234,125 @@ for threshold in key_thresholds:
     print(f"  All Layers: {percentage:.1f}%")
 
 
-# %%
-import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
-import pandas as pd
+# # %%
+# import numpy as np
+# import matplotlib.pyplot as plt
+# import seaborn as sns
+# import pandas as pd
 
-# Load the results
-results = pd.read_csv('activation_diff_results_formula.csv')
+# # Load the results
+# results = pd.read_csv('activation_diff_results_formula.csv')
 
-# Define threshold values to test
-thresholds = np.logspace(-6, 0, 100)  # From 1e-6 to 1
+# # Define threshold values to test
+# thresholds = np.logspace(-6, 0, 100)  # From 1e-6 to 1
 
-# Create figure with 1x3 subplots
-fig, axes = plt.subplots(3, 1, figsize=(10, 16))
-fig.suptitle('Threshold Pass Rate Analysis by Metric Type: Non-Random Neuron Selection Strategy', 
-             fontsize=16, fontweight='bold')
+# # Create figure with 1x3 subplots
+# fig, axes = plt.subplots(3, 1, figsize=(10, 16))
+# fig.suptitle('Threshold Pass Rate Analysis by Metric Type: Non-Random Neuron Selection Strategy', 
+#              fontsize=16, fontweight='bold')
 
-layers = ['fc1', 'fc2', 'fc3']
-metrics = ['min_abs_diff', 'mean_abs_diff', 'max_abs_diff']
-metric_titles = ['Minimum Activation Differences', 'Mean Activation Differences', 'Maximum Activation Differences']
+# layers = ['fc1', 'fc2', 'fc3']
+# metrics = ['min_abs_diff', 'mean_abs_diff', 'max_abs_diff']
+# metric_titles = ['Minimum Separation Values', 'Mean Separation Values', 'Maximum Separation Values']
 
-# Calculate reasonable thresholds for heatmap based on data distribution
-# Use percentiles that show good separation across all metrics
-all_metric_percentiles = []
-for metric in metrics:
-    for layer in layers:
-        column = f'{layer}_{metric}'
-        values = results[column].values
-        all_metric_percentiles.extend([
-            np.percentile(values, 25),
-            np.percentile(values, 50),
-            np.percentile(values, 75),
-            np.percentile(values, 90)
-        ])
+# # Calculate reasonable thresholds for heatmap based on data distribution
+# # Use percentiles that show good separation across all metrics
+# all_metric_percentiles = []
+# for metric in metrics:
+#     for layer in layers:
+#         column = f'{layer}_{metric}'
+#         values = results[column].values
+#         all_metric_percentiles.extend([
+#             np.percentile(values, 25),
+#             np.percentile(values, 50),
+#             np.percentile(values, 75),
+#             np.percentile(values, 90)
+#         ])
 
-# Select 4 thresholds that span the range well
-min_thresh = max(1e-6, np.min(all_metric_percentiles))
-max_thresh = min(1.0, np.max(all_metric_percentiles))
-log_min = np.log10(min_thresh)
-log_max = np.log10(max_thresh)
+# # Select 4 thresholds that span the range well
+# min_thresh = max(1e-6, np.min(all_metric_percentiles))
+# max_thresh = min(1.0, np.max(all_metric_percentiles))
+# log_min = np.log10(min_thresh)
+# log_max = np.log10(max_thresh)
 
-# Use log-spaced thresholds that cover the data range
-threshold_values = np.logspace(log_min, log_max, 4).tolist()
-# Round to reasonable precision
-threshold_values = [round(t, 6) if t < 0.001 else round(t, 4) for t in threshold_values]
+# # Use log-spaced thresholds that cover the data range
+# threshold_values = np.logspace(log_min, log_max, 4).tolist()
+# # Round to reasonable precision
+# threshold_values = [round(t, 6) if t < 0.001 else round(t, 4) for t in threshold_values]
 
-layer_labels = {
-    'fc1': r'$L_1$',
-    'fc2': r'$L_2$', 
-    'fc3': r'$L_3$'
-}
-def format_percentile_not_bold(val):
-    if val < 0.001:
-        exponent = int(np.floor(np.log10(abs(val))))
-        mantissa = val / (10 ** exponent)
-        return f"$ 10^{{{exponent}}}$"#{mantissa:.2f} \\times
-    elif val < 0.1:
-        return f"{val:.3f}"
-    else:
-        return f"{val:.3f}"
-# Function to create heatmap data
-def create_heatmap_data(metric_name):
-    heatmap_data = []
-    for layer in layers:
-        column = f'{layer}_{metric_name}'
-        values = results[column].values
+# layer_labels = {
+#     'fc1': r'$L_1$',
+#     'fc2': r'$L_2$', 
+#     'fc3': r'$L_3$'
+# }
+# def format_percentile_not_bold(val):
+#     if val < 0.001:
+#         exponent = int(np.floor(np.log10(abs(val))))
+#         mantissa = val / (10 ** exponent)
+#         return f"$ 10^{{{exponent}}}$"#{mantissa:.2f} \\times
+#     elif val < 0.1:
+#         return f"{val:.3f}"
+#     else:
+#         return f"{val:.3f}"
+# # Function to create heatmap data
+# def create_heatmap_data(metric_name):
+#     heatmap_data = []
+#     for layer in layers:
+#         column = f'{layer}_{metric_name}'
+#         values = results[column].values
         
-        pass_rates = []
-        for threshold in threshold_values:
-            passing = np.sum(values <= threshold) / len(values) * 100
-            pass_rates.append(passing)
+#         pass_rates = []
+#         for threshold in threshold_values:
+#             passing = np.sum(values <= threshold) / len(values) * 100
+#             pass_rates.append(passing)
         
-        heatmap_data.append(pass_rates)
+#         heatmap_data.append(pass_rates)
     
-    return np.array(heatmap_data)
+#     return np.array(heatmap_data)
 
-# Create heatmaps for each metric
-for idx, (metric, title) in enumerate(zip(metrics, metric_titles)):
-    ax = axes[idx]
+# # Create heatmaps for each metric
+# for idx, (metric, title) in enumerate(zip(metrics, metric_titles)):
+#     ax = axes[idx]
     
-    # Create heatmap data
-    heatmap_data = create_heatmap_data(metric)
+#     # Create heatmap data
+#     heatmap_data = create_heatmap_data(metric)
     
-    # Create heatmap
-    sns.heatmap(heatmap_data, 
-                xticklabels=[f'{format_percentile_not_bold(t)}' for t in threshold_values],
-                yticklabels=[f'{layer_labels[layer]}' for layer in layers],
-                annot=True, fmt='.1f', cmap='RdYlGn',
-                cbar_kws={'label': 'Pass Rate (%)'}, 
-                vmin=0, vmax=100, ax=ax)
+#     # Print heatmap values
+#     print(f"\n{'='*80}")
+#     print(f"HEATMAP VALUES: {title}")
+#     print(f"{'='*80}")
+#     print(f"Threshold values: {threshold_values}")
+#     print(f"\nPass rates (%) for each layer:")
+#     print(f"{'-'*80}")
+#     for layer_idx, layer in enumerate(layers):
+#         print(f"{layer_labels[layer]:>5} ({layer}): ", end="")
+#         for thresh_idx, thresh in enumerate(threshold_values):
+#             print(f"{heatmap_data[layer_idx, thresh_idx]:6.1f}%", end="  ")
+#         print()
+#     print(f"{'='*80}\n")
     
-    ax.set_title(title, fontsize=14, fontweight='bold')
-    ax.set_xlabel('Threshold Value', fontsize=12)
+#     # Create heatmap
+#     sns.heatmap(heatmap_data, 
+#                 xticklabels=[f'{format_percentile_not_bold(t)}' for t in threshold_values],
+#                 yticklabels=[f'{layer_labels[layer]}' for layer in layers],
+#                 annot=True, fmt='.1f', cmap='RdYlGn',
+#                 cbar_kws={'label': 'Pass Rate (%)'}, 
+#                 vmin=0, vmax=100, ax=ax)
     
-    # Only add y-label to the first subplot
-    if idx == 0:
-        #ax.set_ylabel('Layer', fontsize=12)
-        pass
-    else:
-        ax.set_ylabel('')
+#     ax.set_title(title, fontsize=14, fontweight='bold')
+#     ax.set_xlabel('Threshold Value', fontsize=12)
+    
+#     # Only add y-label to the first subplot
+#     if idx == 0:
+#         #ax.set_ylabel('Layer', fontsize=12)
+#         pass
+#     else:
+#         ax.set_ylabel('')
 
-plt.tight_layout()
-save_path = 'TPR-SQ1.pdf'
-plt.savefig(save_path, dpi=300, bbox_inches='tight')
-plt.show()
+# plt.tight_layout()
+# save_path = 'TPR-SQ1.pdf'
+# plt.savefig(save_path, dpi=300, bbox_inches='tight')
+# plt.show()
 
 
 
