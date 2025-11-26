@@ -17,7 +17,7 @@ import os
 #from model_structure import get_preprocessing_transforms,get_resnet_model,BCNN, train_model, evaluate_model
 
 # %%
-MODEL_NAME = "my" # "my" or "pretrained" - CustomCNN uses "my"
+MODEL_NAME = "my" # "my" or "pretrained"
 THE_CLASS = 1 # 0 cat or squirrel, 1 dog
 K_ROUND = 50
 CLASSES = { 
@@ -26,7 +26,7 @@ CLASSES = {
 }
 
 # %%
-layer_stats_df = pd.read_csv(f'{MODEL_NAME}_model_random_paths_for_{CLASSES[THE_CLASS]}_and_{K_ROUND}_rounds.csv')
+layer_stats_df = pd.read_csv(f'{MODEL_NAME}_model_random_paths_for_{CLASSES[THE_CLASS]}_and_{K_ROUND}_Rounds.csv')
 layer_stats_df.head(26)
 
 # %%
@@ -88,14 +88,14 @@ plt.yticks(fontsize=20)
 plt.tight_layout()
 
 # Save plot
-save_path = f'DCA-TS1.pdf'
+save_path = f'DCA-TS2.pdf'
 plt.savefig(save_path, dpi=300, bbox_inches='tight')
 plt.show()
 
 # %%
 import math
 
-layer_stats_df = pd.read_csv(f'{MODEL_NAME}_model_random_paths_for_{CLASSES[THE_CLASS]}_and_{K_ROUND}_rounds.csv')
+layer_stats_df = pd.read_csv(f'{MODEL_NAME}_model_random_paths_for_{CLASSES[THE_CLASS]}_and_{K_ROUND}_Rounds.csv')
 unique_layers = layer_stats_df['layer_name'].unique()
 num_layers = len(unique_layers)
 n_cols = min(3, num_layers) 
@@ -182,7 +182,7 @@ plt.show()
 
 # %%
 # Load the data
-layer_stats_df = pd.read_csv(f'{MODEL_NAME}_model_random_paths_for_{CLASSES[THE_CLASS]}_and_{K_ROUND}_rounds.csv')
+layer_stats_df = pd.read_csv(f'{MODEL_NAME}_model_random_paths_for_{CLASSES[THE_CLASS]}_and_{K_ROUND}_Rounds.csv')
 
 # Prepare data
 model1_df = layer_stats_df[['layer_name', 'model1_activation_value']].copy()
@@ -206,13 +206,28 @@ combined_df = pd.concat([
     model2_df[['layer_name', 'Model', 'activation_value']]
 ])
 
-# Filter for conv and linear layers (CustomCNN structure)
-# CustomCNN has: features.0, features.4, features.8 (Conv2d layers) and classifier.1, classifier.4 (Linear layers)
-last_conv_layers = ['features.0',
- 'features.4',
- 'features.8',
- 'classifier.1',
- 'classifier.4']
+# Filter for last conv layer of each block
+last_conv_layers = ['conv1',
+ 'layer1.0.conv1',
+ 'layer1.0.conv2',
+ 'layer1.1.conv1',
+ 'layer1.1.conv2',
+ 'layer2.0.conv1',
+ 'layer2.0.conv2',
+ 'layer2.0.downsample.0',
+ 'layer2.1.conv1',
+ 'layer2.1.conv2',
+ 'layer3.0.conv1',
+ 'layer3.0.conv2',
+ 'layer3.0.downsample.0',
+ 'layer3.1.conv1',
+ 'layer3.1.conv2',
+ 'layer4.0.conv1',
+ 'layer4.0.conv2',
+ 'layer4.0.downsample.0',
+ 'layer4.1.conv1',
+ 'layer4.1.conv2',
+ 'fc']
 
 # Generate statistical summary table for last conv blocks only
 print(f"Last Conv Layers Statistical Summary for {MODEL_NAME} - Class: {CLASSES[THE_CLASS]}")
@@ -246,12 +261,12 @@ last_conv_data = combined_df[combined_df['layer_name'].isin(last_conv_layers)]
 
 
 # %%
-# For CustomCNN: use the last conv of each block and the output layer
 last_conv_layers = [
- 'features.0',
- 'features.4',
- 'features.8',
- 'classifier.4']  # Last conv layers and output layer
+ 'layer1.1.conv2',
+ 'layer2.1.conv2',
+ 'layer3.1.conv2',
+ 'layer4.1.conv2',
+ 'fc']
 last_conv_data = combined_df[combined_df['layer_name'].isin(last_conv_layers)]
 
 fig, ax = plt.subplots(figsize=(10, 5))
@@ -305,7 +320,7 @@ plt.yscale('log')
 plt.tight_layout()
 plt.legend(title='Model', fontsize=12, title_fontsize=14, loc='lower right')
 # Save plot
-save_path = f'MAC-TS1.pdf'
+save_path = f'MAC-TS2.pdf'
 legend = ax.get_legend()
 legend.get_texts()[0].set_text(r'$\mathcal{M}$')  # Model 1 -> M₁
 legend.get_texts()[1].set_text(r'$\widetilde{\mathcal{M}}$')  # Model 2 -> M₂
@@ -317,7 +332,7 @@ import numpy as np
 from scipy.spatial.distance import jensenshannon
 
 # Load the data
-layer_stats_df = pd.read_csv(f'{MODEL_NAME}_model_random_paths_for_{CLASSES[THE_CLASS]}_and_{K_ROUND}_rounds.csv')
+layer_stats_df = pd.read_csv(f'{MODEL_NAME}_model_random_paths_for_{CLASSES[THE_CLASS]}_and_{K_ROUND}_Rounds.csv')
 
 # Process model1 data
 model1_df = layer_stats_df[['layer_name', 'model1_activation_value']].copy()
@@ -361,8 +376,8 @@ def calculate_js_divergence(p_values, q_values, bins=100):
     
     return js_distance
 
-# Calculate JS divergence for last conv layers only (CustomCNN structure)
-last_conv_layers = ['features.0', 'features.4', 'features.8', 'classifier.4']
+# Calculate JS divergence for last conv layers only
+last_conv_layers = ['conv1', 'layer1.1.conv2', 'layer2.1.conv2', 'layer3.1.conv2', 'layer4.1.conv2', 'fc']
 
 print(f"Jensen-Shannon Divergence for {MODEL_NAME} - Class: {CLASSES[THE_CLASS]}")
 print("=" * 60)
@@ -381,7 +396,7 @@ for layer in last_conv_layers:
 
 # %%
 # Load the data
-layer_stats_df = pd.read_csv(f'{MODEL_NAME}_model_random_paths_for_{CLASSES[THE_CLASS]}_and_{K_ROUND}_rounds.csv')
+layer_stats_df = pd.read_csv(f'{MODEL_NAME}_model_random_paths_for_{CLASSES[THE_CLASS]}_and_{K_ROUND}_Rounds.csv')
 
 if isinstance(layer_stats_df['model1_activation_value'].iloc[0], str):
     layer_stats_df['model1_activation_value'] = layer_stats_df['model1_activation_value'].apply(
@@ -418,7 +433,7 @@ plt.yticks(fontsize=20)
 # legend.get_texts()[1].set_text(r'$\widetilde{\mathcal{M}}$')  # Model 2 -> M₂
 
 plt.tight_layout()
-save_path = f'HAV-TS1.pdf'
+save_path = f'HAV-TS2.pdf'
 plt.savefig(save_path, dpi=300, bbox_inches='tight')
 plt.show()
 
