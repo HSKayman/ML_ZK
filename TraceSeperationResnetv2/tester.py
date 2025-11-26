@@ -185,7 +185,7 @@ def compare_model_activations(model1_activations, model2_activations, selected_i
         original_shape = indices_info.get('original_shape', data1['output'].shape)
         
         # get inputs, weights, biases, and stored outputs
-        # CHANGED: Now comparing different inputs with same weights
+        # 
         input1 = data1['input']  # Input from model 1
         input2 = data2['input']  # Input from model 2
         weights1 = data1['weight']  # Using same weights (model 1)
