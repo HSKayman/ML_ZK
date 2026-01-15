@@ -429,7 +429,7 @@ def get_activation_stats(z: torch.Tensor) -> Dict[str, float]:
     }
 
 def get_top_k_probs(probs: torch.Tensor, k: int = 20) -> Dict[str, float]:
-    """Get top-k probability values (without token info, just the values)."""
+   #Get top-k probability values (without token info, just the values).
     top_probs, top_indices = torch.topk(probs, k)
     result = {}
     for i in range(k):
@@ -462,7 +462,7 @@ def compute_delta_stats(perturbations: Dict[int, float]) -> Dict[str, float]:
     }
 
 def get_topk_activations(z: torch.Tensor, k: int = 20) -> Dict[str, float]:
-    """Get top-k activation values (by absolute magnitude) from activation vector."""
+   #Get top-k activation values (by absolute magnitude) from activation vector.
     abs_z = torch.abs(z)
     top_vals, top_indices = torch.topk(abs_z, k)
     
