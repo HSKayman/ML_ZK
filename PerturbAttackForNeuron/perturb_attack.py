@@ -17,7 +17,7 @@ from typing import List, Dict, Any, Optional, Tuple
 
 # %%
 # %%
-DEVICE = torch.device('cpu')#'cuda' if torch.cuda.is_available() else 'cpu')
+DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 MODEL_PATH = "meta-llama/Llama-2-7b-chat-hf"
 print(f"Using device: {DEVICE}")
 
