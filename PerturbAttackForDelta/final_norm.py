@@ -125,7 +125,7 @@ def rank_neurons_by_alignment(
     W: torch.Tensor
 ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
     
-   # Fix here 
+   # Look here to fix the ranking of neurons but not needed
     w_col_norms = torch.norm(W, dim=0)  # [hidden_size]
     projections = gradient * w_col_norms  # [hidden_size]
     

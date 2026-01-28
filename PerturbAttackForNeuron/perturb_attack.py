@@ -1,27 +1,27 @@
 # %%
 import torch
 import torch.nn as nn
-import torch.optim as optim
 import torch.nn.functional as F
 import numpy as np
 import pandas as pd
 from transformers import LlamaTokenizer, LlamaForCausalLM
-from tqdm import tqdm
 import os
 import gc
-from collections import defaultdict
 from typing import List, Dict, Any, Optional, Tuple
 
+# %%
 
 # %%
 # from huggingface_hub import login
 # login()  
 
 # %%
+# %%
 DEVICE = torch.device('cpu')#'cuda' if torch.cuda.is_available() else 'cpu')
 MODEL_PATH = "meta-llama/Llama-2-7b-chat-hf"
 print(f"Using device: {DEVICE}")
 
+# %%
 # %%
 tokenizer = LlamaTokenizer.from_pretrained(MODEL_PATH)
 tokenizer.pad_token = tokenizer.eos_token
@@ -34,7 +34,9 @@ model = LlamaForCausalLM.from_pretrained(
 )
 model.eval()
 
+
 # %%
+
 # =============================================================================
 # Distance Metrics for Comparing Logit Distributions
 # =============================================================================
@@ -83,6 +85,8 @@ def compute_all_distances(original_logits: torch.Tensor, perturbed_logits: torch
     }
 
 # %%
+
+# %%
 # =============================================================================
 # RMSNorm and Gradient-Based Perturbation Functions
 # =============================================================================
@@ -120,9 +124,11 @@ def compute_swap_gradient(
     # Return negative gradient
     return -z.grad.detach()
 
+# %%
 def rank_neurons_by_alignment(
     gradient: torch.Tensor,
-    W: torch.Tensor
+    W: torch.Tensor,
+    exclude_indices: Optional[List[int]] = None
 ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
     # Rank neurons by alignment: gradient sensitivity weighted by W column norms
     # gradient is [hidden_size], W is [vocab_size, hidden_size]
@@ -134,6 +140,11 @@ def rank_neurons_by_alignment(
     # Scores are absolute values
     scores = torch.abs(projections)
     
+    # If excluding certain neurons, set their scores to -inf so they're ranked last
+    if exclude_indices is not None and len(exclude_indices) > 0:
+        for idx in exclude_indices:
+            scores[idx] = -float('inf')
+    
     # Sort by score descending
     sorted_scores, sorted_indices = torch.sort(scores, descending=True)
     
@@ -142,13 +153,33 @@ def rank_neurons_by_alignment(
     
     return sorted_indices, sorted_scores, signs
 
+# %%
+def identify_special_node(
+    gradient: torch.Tensor,
+    W: torch.Tensor
+) -> Tuple[int, float]:
+    #special_node_idx: Index of the special neuron
+    # special_node_score: Its impact score
+
+    w_col_norms = torch.norm(W, dim=0)  # [hidden_size]
+    projections = gradient * w_col_norms  # [hidden_size]
+    scores = torch.abs(projections)
+    
+    special_node_idx = torch.argmax(scores).item()
+    special_node_score = scores[special_node_idx].item()
+    
+    return special_node_idx, special_node_score
+
+# %%
 def find_min_neurons_for_swap(
     z: torch.Tensor,
     W: torch.Tensor,
     epsilon: float,
     norm_layer: nn.Module,
     bias: Optional[torch.Tensor] = None,
-    max_neurons: Optional[int] = None
+    max_neurons: Optional[int] = None,
+    exclude_neurons: Optional[List[int]] = None,
+    special_node_idx: Optional[int] = None
 ) -> Dict[str, Any]:
     # Find minimum number of neurons to perturb to achieve a swap of top-1 and top-2 predictions.
 
@@ -168,16 +199,33 @@ def find_min_neurons_for_swap(
     # Compute gradient direction for swap
     gradient = compute_swap_gradient(z, W, top1_idx, top2_idx, norm_layer, bias)
     
-    # Rank neurons by alignment with gradient
-    sorted_indices, sorted_scores, signs = rank_neurons_by_alignment(gradient, W)
+    # Rank neurons by alignment with gradient (excluding specified neurons)
+    sorted_indices, sorted_scores, signs = rank_neurons_by_alignment(gradient, W, exclude_neurons)
     
     # Greedy selection - add neurons one by one
     z_mod = z.clone()
     perturbed_neurons = []
     perturbations = {}
+    special_node_used = False
+    special_node_rank = None
+    
+    # Track where special node appears in ranking
+    if special_node_idx is not None:
+        for rank, idx in enumerate(sorted_indices):
+            if idx.item() == special_node_idx:
+                special_node_rank = rank
+                break
     
     for i in range(min(max_neurons, hidden_size)):
         neuron_idx = sorted_indices[i].item()
+        
+        # Skip if this neuron has -inf score (was excluded)
+        if sorted_scores[i] == -float('inf'):
+            continue
+        
+        # Check if we're using the special node
+        if special_node_idx is not None and neuron_idx == special_node_idx:
+            special_node_used = True
         
         # sign(v · W[:,i]) * epsilon
         delta = signs[neuron_idx].item() * epsilon
@@ -194,7 +242,7 @@ def find_min_neurons_for_swap(
         new_top1_idx = torch.argmax(new_logits).item()
         
         # Swap achieved if original top-2 is now top-1
-        if new_top1_idx == top2_idx:
+        if new_top1_idx != top1_idx:
             return {
                 'success': True,
                 'num_neurons': len(perturbed_neurons),
@@ -208,6 +256,8 @@ def find_min_neurons_for_swap(
                 'original_top1': top1_idx,
                 'original_top2': top2_idx,
                 'final_top1': new_top1_idx,
+                'special_node_used': special_node_used,
+                'special_node_rank': special_node_rank,
             }
     
     # Failing to achieve swap within max_neurons
@@ -228,7 +278,12 @@ def find_min_neurons_for_swap(
         'original_top1': top1_idx,
         'original_top2': top2_idx,
         'final_top1': torch.argmax(final_logits).item(),
+        'special_node_used': special_node_used,
+        'special_node_rank': special_node_rank,
     }
+
+
+# %%
 
 def compute_logit_shift_for_swap(p_top1: float, p_top2: float) -> float:
     # Compute the required logit shift to swap top-1 and top-2.
@@ -246,6 +301,7 @@ def compute_logit_shift_for_swap(p_top1: float, p_top2: float) -> float:
     # Need to shift by at least this much
     return abs(logit_gap) + 0.1  # Small margin for numerical stability
 
+# %%
 def estimate_required_alpha(
     z: torch.Tensor,
     W: torch.Tensor,
@@ -268,21 +324,64 @@ def estimate_required_alpha(
     
     return alpha_total
 
-def estimate_min_neurons(
+# %%
+def find_min_neurons_with_adaptive_epsilon(
     z: torch.Tensor,
     W: torch.Tensor,
-    epsilon: float,
-    p_top1: float,
-    p_top2: float
-) -> int:
-    # Estimate the minimum number of neurons needed for swap.
-    alpha_total = estimate_required_alpha(z, W, p_top1, p_top2)
-    
-    # Each neuron contributes at most epsilon to the total effect
-    k_estimate = int(np.ceil(alpha_total / epsilon))
-    
-    return max(1, k_estimate)
+    norm_layer: nn.Module,
+    bias: Optional[torch.Tensor] = None,
+    max_neurons: Optional[int] = None,
+    exclude_neurons: Optional[List[int]] = None,
+    special_node_idx: Optional[int] = None,
+    epsilon_values: Optional[List[float]] = None
+) -> Dict[str, Any]:
 
+    # Find minimum neurons for swap with adaptive epsilon.
+    # Try increasing epsilon values until output changes are achieved.
+   
+    if epsilon_values is None:
+        epsilon_values = [0.1, 0.5, 1.0, 2.0, 5.0, 10.0,20.0,50.0,100.0]
+    
+    hidden_size = z.shape[-1]
+    if max_neurons is None:
+        max_neurons = hidden_size
+    
+    best_result = None
+    
+    for epsilon in epsilon_values:
+        result = find_min_neurons_for_swap(
+            z=z,
+            W=W,
+            epsilon=epsilon,
+            norm_layer=norm_layer,
+            bias=bias,
+            max_neurons=max_neurons,
+            exclude_neurons=exclude_neurons,
+            special_node_idx=special_node_idx
+        )
+        
+        result['epsilon_used'] = epsilon
+        
+        # Compute total perturbation magnitude
+        if result['perturbations']:
+            perturbation_values = list(result['perturbations'].values())
+            result['total_perturbation_magnitude'] = sum(abs(d) for d in perturbation_values)
+            result['max_single_perturbation'] = max(abs(d) for d in perturbation_values)
+        else:
+            result['total_perturbation_magnitude'] = 0.0
+            result['max_single_perturbation'] = 0.0
+        
+        if result['success']:
+            return result
+        
+        # Keep track of best attempt (most neurons perturbed)
+        if best_result is None or result['num_neurons'] > best_result['num_neurons']:
+            best_result = result
+    
+    # If no epsilon achieved swap, return the best attempt
+    return best_result if best_result is not None else result
+
+# %%
 # %%
 # Global variables for detailed activation capture
 captured_activations = {}
@@ -399,6 +498,7 @@ def run_model_and_capture_activations(model, inputs=None, inputs_embeds=None):
     return captured_activations.copy()
 
 # %%
+
 # Neuron Perturbation Sensitivity Analysis
 
 def get_top_k_predictions(logits: torch.Tensor, tokenizer, k: int = 3) -> Dict[str, Any]:
@@ -417,15 +517,19 @@ def get_top_k_predictions(logits: torch.Tensor, tokenizer, k: int = 3) -> Dict[s
     
     return result
 
-def run_gradient_swap_attack(
+def run_gradient_swap_attack_with_special_node(
     model: "LlamaForCausalLM",
     tokenizer: "LlamaTokenizer",
     pre_norm_activations: torch.Tensor,
-    epsilon: float,
     input_id: int = 0,
-    filename: str = "gradient_swap_attack_results_other.csv",
+    filename: str = "gradient_swap_attack_special_node_results.csv",
+    use_adaptive_epsilon: bool = True,
+    max_neurons: Optional[int] = None,
+    epsilon_values: Optional[List[float]] = None,
 ) -> Dict[str, Any]:
-    
+    # Run gradient swap attack with special node monitoring.
+    # Compares baseline (can use any neuron) vs constrained (avoiding special node).
+
     # Get dimensions
     seq_len = pre_norm_activations.shape[1]
     hidden_size = pre_norm_activations.shape[2]
@@ -448,42 +552,121 @@ def run_gradient_swap_attack(
     top1_idx = top2_indices[0].item()
     top2_idx = top2_indices[1].item()
     p_top1 = original_probs[top1_idx].item()
-    p_top2 = original_probs[top2_idx].item()
+    p_top2 = original_probs[top2_idx].item() # INeeficient part suca removed by using topk
     
-    # Get original top-3 predictions for logging only
+    # Get original top-3 predictions for logging
     original_top3 = get_top_k_predictions(original_logits, tokenizer, k=3)
     
     # Compute analytical estimate
     estimated_alpha = estimate_required_alpha(z, W, p_top1, p_top2)
     
+    # Compute gradient for special node identification
+    gradient = compute_swap_gradient(z, W, top1_idx, top2_idx, norm_layer, bias)
+    
+    # Identify the special node
+    special_node_idx, special_node_score = identify_special_node(gradient, W)
+    
     print(f"  Original top-1: '{tokenizer.decode([top1_idx])}' (p={p_top1:.4f})")
     print(f"  Original top-2: '{tokenizer.decode([top2_idx])}' (p={p_top2:.4f})")
-    print(f"  Estimation ofthe required pertubation magnitude Alpha_total {estimated_alpha:.2f}")
+    print(f"  Special node: idx={special_node_idx}, score={special_node_score:.4f}")
+    print(f"  Estimated Alpha_total: {estimated_alpha:.2f}")
     
-    # Run the greedy swap attack using models actual RMSNorm
-    result = find_min_neurons_for_swap(z, W, epsilon, norm_layer, bias, max_neurons=hidden_size)
+    # Run BASELINE attack (can use any neuron, including special node)
+    print(f"\n  Running BASELINE attack (no constraints)...")
+    if use_adaptive_epsilon:
+        baseline_result = find_min_neurons_with_adaptive_epsilon(
+            z=z, W=W, norm_layer=norm_layer, bias=bias,
+            max_neurons=max_neurons, exclude_neurons=None,
+            special_node_idx=special_node_idx, epsilon_values=epsilon_values
+        )
+    else:
+        baseline_result = find_min_neurons_for_swap(
+            z=z, W=W, epsilon=epsilon_values[0] if epsilon_values else 0.1,
+            norm_layer=norm_layer, bias=bias, max_neurons=max_neurons,
+            exclude_neurons=None, special_node_idx=special_node_idx
+        )
+        baseline_result['epsilon_used'] = epsilon_values[0] if epsilon_values else 0.1
     
-    # Compute distances
-    distances = compute_all_distances(
-        result['original_logits'],
-        result['final_logits']
+    # Compute distances for baseline
+    baseline_distances = compute_all_distances(
+        baseline_result['original_logits'],
+        baseline_result['final_logits']
     )
     
-    # Get final top-3 predictions
-    final_top3 = get_top_k_predictions(result['final_logits'], tokenizer, k=3)
+    # Get final top-3 for baseline
+    baseline_top3 = get_top_k_predictions(baseline_result['final_logits'], tokenizer, k=3)
     
-    # Build result record
+    print(f"  BASELINE: success={baseline_result['success']}, neurons={baseline_result['num_neurons']}, "
+          f"epsilon={baseline_result.get('epsilon_used', 'N/A')}, special_used={baseline_result.get('special_node_used', False)}")
+    
+    # Run CONSTRAINED attack (must avoid special node)
+    print(f"\n  Running CONSTRAINED attack (avoiding special node {special_node_idx})...")
+    if use_adaptive_epsilon:
+        constrained_result = find_min_neurons_with_adaptive_epsilon(
+            z=z, W=W, norm_layer=norm_layer, bias=bias,
+            max_neurons=max_neurons, exclude_neurons=[special_node_idx],
+            special_node_idx=special_node_idx, epsilon_values=epsilon_values
+        )
+    else:
+        constrained_result = find_min_neurons_for_swap(
+            z=z, W=W, epsilon=epsilon_values[0] if epsilon_values else 0.1,
+            norm_layer=norm_layer, bias=bias, max_neurons=max_neurons,
+            exclude_neurons=[special_node_idx], special_node_idx=special_node_idx
+        )
+        constrained_result['epsilon_used'] = epsilon_values[0] if epsilon_values else 0.1
+    
+    # Compute distances for constrained
+    constrained_distances = compute_all_distances(
+        constrained_result['original_logits'],
+        constrained_result['final_logits']
+    )
+    
+    # Get final top-3 for constrained
+    constrained_top3 = get_top_k_predictions(constrained_result['final_logits'], tokenizer, k=3)
+    
+    print(f"  CONSTRAINED: success={constrained_result['success']}, neurons={constrained_result['num_neurons']}, "
+          f"epsilon={constrained_result.get('epsilon_used', 'N/A')}, special_avoided={not constrained_result.get('special_node_used', True)}")
+    
+    # Build comparison record
     record = {
         'input_id': input_id,
-        'epsilon': epsilon,
-        'success': result['success'],
-        'num_neurons': result['num_neurons'],
-        'total_neurons': hidden_size,
-        'estimated_alpha': estimated_alpha,
+        'allowed_neurons': max_neurons,
+        #'total_neurons': hidden_size,
+        #'estimated_alpha': estimated_alpha,
+        
+        # Special node info
+        'special_node_idx': special_node_idx,
+        'special_node_score': special_node_score,
+        #'special_node_rank_baseline': baseline_result.get('special_node_rank', -1),
+        #'special_node_rank_constrained': constrained_result.get('special_node_rank', -1),
+        
+        # Baseline attack results
+        'baseline_success': baseline_result['success'],
+        'baseline_num_neurons': baseline_result['num_neurons'],
+        'baseline_epsilon': baseline_result.get('epsilon_used', 0.0),
+        'baseline_special_used': baseline_result.get('special_node_used', False),
+        'baseline_total_magnitude': baseline_result.get('total_perturbation_magnitude', 0.0),
+        'baseline_max_perturbation': baseline_result.get('max_single_perturbation', 0.0),
+        **{f'baseline_{k}': v for k, v in baseline_distances.items()},
+        **{f'baseline_final_{k}': v for k, v in baseline_top3.items()},
+        
+        # Constrained attack results
+        'constrained_success': constrained_result['success'],
+        'constrained_num_neurons': constrained_result['num_neurons'],
+        'constrained_epsilon': constrained_result.get('epsilon_used', 0.0),
+        'constrained_special_avoided': not constrained_result.get('special_node_used', True),
+        'constrained_total_magnitude': constrained_result.get('total_perturbation_magnitude', 0.0),
+        'constrained_max_perturbation': constrained_result.get('max_single_perturbation', 0.0),
+        **{f'constrained_{k}': v for k, v in constrained_distances.items()},
+        **{f'constrained_final_{k}': v for k, v in constrained_top3.items()},
+        
+        # Original predictions (same for both)
         **{f'orig_{k}': v for k, v in original_top3.items()},
-        **{f'final_{k}': v for k, v in final_top3.items()},
-        **distances,
-        'neuron_indices': str(result['neuron_indices'][:20]) + ('...' if len(result['neuron_indices']) > 20 else ''),
+        
+        # Comparison metrics
+        'neurons_diff': constrained_result['num_neurons'] - baseline_result['num_neurons'],
+        'epsilon_diff': constrained_result.get('epsilon_used', 0.0) - baseline_result.get('epsilon_used', 0.0),
+        'magnitude_diff': constrained_result.get('total_perturbation_magnitude', 0.0) - baseline_result.get('total_perturbation_magnitude', 0.0),
     }
     
     # Save to CSV
@@ -491,59 +674,48 @@ def run_gradient_swap_attack(
     file_exists = os.path.exists(filename)
     df.to_csv(filename, mode='a', header=not file_exists, index=False)
     
-    # Print result
-    if result['success']:
-        print(f"  SUCCESS: Swap achieved with {result['num_neurons']} neurons ({result['num_neurons']/hidden_size*100:.2f}%)")
-        print(f"  New top-1: '{tokenizer.decode([result['final_top1']])}' (was top-2)")
-    else:
-        print(f"  FAILED: Could not achieve swap with {result['num_neurons']} neurons")
-        print(f"  Current top-1: '{tokenizer.decode([result['final_top1']])}'")
-    
     return {
-        **result,
-        'distances': distances,
-        'estimated_alpha': estimated_alpha,
+        'baseline': baseline_result,
+        'constrained': constrained_result,
+        'special_node_idx': special_node_idx,
+        'special_node_score': special_node_score,
         'record': record,
     }
 
-# %%W
-# =============================================================================
-# Main Workflow: Gradient-Based Swap Attack 
-# =============================================================================
+# %%
 
-def run_swap_attack_workflow(
+def run_swap_attack_workflow_with_special_node(
     model: "LlamaForCausalLM",
     tokenizer: "LlamaTokenizer",
     string_input: List,  # [input_id, input_text]
-    epsilon: float = 1.0,
-    filename: str = "gradient_swap_attack_results.csv",
+    filename: str = "gradient_swap_attack_special_node_results.csv",
+    use_adaptive_epsilon: bool = True,
+    epsilon_values: Optional[List[float]] = None,
+    max_neurons_list: Optional[int] = None,
 ) -> Dict[str, Any]:
-
-    # Finds the minimum number of neurons to perturb 
-    #to swap the top-1 and top-2 predictions using gradient-based neuron ranking.
-
+    """
+    Run gradient-based swap attack with special node monitoring.
+    Compares baseline vs constrained attacks.
+    """
     input_id, input_text = string_input
     sample_input = tokenizer(input_text, return_tensors="pt")
     inputs_on_device = {k: v.to(model.device) for k, v in sample_input.items()}
     
-    print(f"\n{'='*60}")
+    print(f"\n{'='*80}")
     print(f"Input ID: {input_id}")
     print(f"Input: '{tokenizer.decode(inputs_on_device['input_ids'][0])}'")
-    print(f"Epsilon (max perturbation per neuron): {epsilon}")
-    print(f"{'='*60}")
+    print(f"Mode: {'Adaptive Epsilon' if use_adaptive_epsilon else 'Fixed Epsilon'}")
+    if epsilon_values:
+        print(f"Epsilon values: {epsilon_values}")
+    print(f"{'='*80}")
     
-    # --- Step 1: Capture Pre-RMSNorm Activations ---
-    #print("Running forward pass to capture activations...")
-    
-    # The final_norm input is the output of the last transformer layer
+    # Capture Pre-RMSNorm Activations
     original_activations = run_model_and_capture_activations(model, inputs=inputs_on_device)
     
     # Get pre-norm activations (input to final RMSNorm)
     try:
-        # The input to final_norm is the pre-normalized activation
         pre_norm_activations = original_activations['final_norm']['input']
         if pre_norm_activations is None:
-            # Fallback: use output and un-normalize (approximation)
             print("WARNING: Using final_norm output as approximation for pre-norm activations")
             pre_norm_activations = original_activations['final_norm']['output']
         pre_norm_activations = pre_norm_activations.to(model.device).float()
@@ -552,36 +724,46 @@ def run_swap_attack_workflow(
         return None
     
     hidden_size = pre_norm_activations.shape[2]
-    #print(f"Pre-norm activations shape: {pre_norm_activations.shape}")
-    #print(f"Hidden size (N = total neurons): {hidden_size}")
-    
-    # --- Step 2: Run the Gradient-Based Swap Attack ---
-    #print(f"\nRunning gradient-based swap attack...")
-    
-    result = run_gradient_swap_attack(
-        model=model,
-        tokenizer=tokenizer,
-        pre_norm_activations=pre_norm_activations,
-        epsilon=epsilon,
-        input_id=input_id,
-        filename=filename,
-    )
+    for max_neurons in max_neurons_list:
+        # Run the Special Node Attack
+        result = run_gradient_swap_attack_with_special_node(
+            model=model,
+            tokenizer=tokenizer,
+            pre_norm_activations=pre_norm_activations,
+            input_id=input_id,
+            filename=filename,
+            use_adaptive_epsilon=use_adaptive_epsilon,
+            epsilon_values=epsilon_values,
+            max_neurons=max_neurons,
+        )
     
     # Clean up
     del original_activations, pre_norm_activations
     clear_activations()
     
-    # Print summary
-    print(f"\n{'='*60}")
-    # print("SUMMARY")
-    print(f"  Success: {result['success']}")
-    print(f"  Neurons perturbed: {result['num_neurons']} / {hidden_size} ({result['num_neurons']/hidden_size*100:.2f}%)")
-    print(f"  L2 distance: {result['distances']['l2_distance']:.4f}")
-    print(f"  JS divergence: {result['distances']['js_divergence']:.4f}")
-    print(f"{'='*60}")
+    # Print comparison summary
+    print(f"\n{'='*80}")
+    print("COMPARISON SUMMARY")
+    print(f"  Special Node: idx={result['special_node_idx']}, score={result['special_node_score']:.4f}")
+    print(f"\n  BASELINE (unrestricted):")
+    print(f"    Success: {result['baseline']['success']}")
+    print(f"    Neurons: {result['baseline']['num_neurons']} / {hidden_size}")
+    print(f"    Epsilon: {result['baseline'].get('epsilon_used', 'N/A')}")
+    print(f"    Special node used: {result['baseline'].get('special_node_used', False)}")
+    print(f"\n  CONSTRAINED (avoiding special node):")
+    print(f"    Success: {result['constrained']['success']}")
+    print(f"    Neurons: {result['constrained']['num_neurons']} / {hidden_size}")
+    print(f"    Epsilon: {result['constrained'].get('epsilon_used', 'N/A')}")
+    print(f"    Special node avoided: {not result['constrained'].get('special_node_used', True)}")
+    print(f"\n  DIFFERENCE (constrained - baseline):")
+    print(f"    Neurons: {result['record']['neurons_diff']:+d}")
+    print(f"    Epsilon: {result['record']['epsilon_diff']:+.2f}")
+    print(f"    Total magnitude: {result['record']['magnitude_diff']:+.4f}")
+    print(f"{'='*80}")
     
     return result
 
+# %%
 # %%
 sample_texts = [
     [1,"The capital of France is"],
@@ -612,70 +794,109 @@ sample_texts = [
 ]
 
 # %%
+# %%
 # =============================================================================
-# Run Gradient-Based Swap Attack on All Sample Texts
+# Run Special Node Monitoring Experiments
 # =============================================================================
 
-# Configuration
-EPSILON = 0.1  # Maximum perturbation per neuron
-OUTPUT_FILE = "gradient_swap_attack_results_other.csv"
-
+# Configuration for Special Node Experiments
+USE_ADAPTIVE_EPSILON = True  # Increase epsilon until output changes
+EPSILON_VALUES = [i*0.1 for i in range(1,1000,1)]  # Try these epsilon values
+OUTPUT_FILE_SPECIAL = "./gradient_swap_attack_special_node_results.csv"
+max_neurons_list = [ i for i in range(10,300,10)]
 # Store results
-all_results = {}
+all_special_results = {}
+
+print("\n" + "="*80)
+print("SPECIAL NODE MONITORING EXPERIMENTS")
+print("="*80)
+print(f"Adaptive epsilon: {USE_ADAPTIVE_EPSILON}")
+print(f"Epsilon progression: {EPSILON_VALUES}")
+print(f"Output file: {OUTPUT_FILE_SPECIAL}")
+print("="*80)
 
 # Loop through each prompt
 for i, prompt in enumerate(sample_texts):
-   # print(f"\n>>>> Starting Gradient Swap Attack for Prompt {i+1}/{len(sample_texts)} <<<<")
+    print(f"\n>>>> Prompt {i+1}/{len(sample_texts)} <<<<")
     
-    result = run_swap_attack_workflow(
+    result = run_swap_attack_workflow_with_special_node(
         model=model,
         tokenizer=tokenizer,
         string_input=prompt,
-        epsilon=EPSILON,
-        filename=OUTPUT_FILE,
+        filename=OUTPUT_FILE_SPECIAL,
+        use_adaptive_epsilon=USE_ADAPTIVE_EPSILON,
+        epsilon_values=EPSILON_VALUES,
+        max_neurons_list=max_neurons_list
     )
     
     if result is not None:
-        all_results[prompt[0]] = result
-    break
+        all_special_results[prompt[0]] = result
 
-print("\n\n<<<< ALL SWAP ATTACKS COMPLETE >>>>")
-print(f"Results saved to '{OUTPUT_FILE}'")
+# %%
+
+print("\n\n" + "="*80)
+print("<<<< ALL SPECIAL NODE EXPERIMENTS COMPLETE >>>>")
+print("="*80)
+print(f"Results saved to '{OUTPUT_FILE_SPECIAL}'")
+
 
 # Overall summary
-print("\n" + "="*60)
-print("OVERALL SUMMARY")
-print("="*60)
-successes = sum(1 for r in all_results.values() if r['success'])
-total = len(all_results)
-print(f"  Success rate: {successes}/{total} ({successes/total*100:.1f}%)")
+print("\n" + "="*80)
+print("OVERALL SUMMARY - SPECIAL NODE EXPERIMENTS")
+print("="*80)
 
-if all_results:
-    avg_neurons = sum(r['num_neurons'] for r in all_results.values()) / len(all_results)
-    avg_ratio = sum(r['num_neurons'] / r['record']['total_neurons'] for r in all_results.values()) / len(all_results)
-    print(f"  Average neurons perturbed: {avg_neurons:.1f}")
-    print(f"  Average soundness ratio: {avg_ratio*100:.2f}%")
+if all_special_results:
+    # Baseline stats
+    baseline_successes = sum(1 for r in all_special_results.values() if r['baseline']['success'])
+    constrained_successes = sum(1 for r in all_special_results.values() if r['constrained']['success'])
+    total = len(all_special_results)
+    
+    print(f"\nSuccess Rates:")
+    print(f"  Baseline (unrestricted): {baseline_successes}/{total} ({baseline_successes/total*100:.1f}%)")
+    print(f"  Constrained (avoiding special node): {constrained_successes}/{total} ({constrained_successes/total*100:.1f}%)")
+    
+    # Average neurons
+    avg_baseline_neurons = sum(r['baseline']['num_neurons'] for r in all_special_results.values()) / total
+    avg_constrained_neurons = sum(r['constrained']['num_neurons'] for r in all_special_results.values()) / total
+    avg_diff_neurons = avg_constrained_neurons - avg_baseline_neurons
+    
+    print(f"\nAverage Neurons Perturbed:")
+    print(f"  Baseline: {avg_baseline_neurons:.1f}")
+    print(f"  Constrained: {avg_constrained_neurons:.1f}")
+    print(f"  Difference: {avg_diff_neurons:+.1f} ({(avg_diff_neurons/avg_baseline_neurons)*100:+.1f}%)")
+    
+    # Average epsilon
+    avg_baseline_epsilon = sum(r['baseline'].get('epsilon_used', 0) for r in all_special_results.values()) / total
+    avg_constrained_epsilon = sum(r['constrained'].get('epsilon_used', 0) for r in all_special_results.values()) / total
+    avg_diff_epsilon = avg_constrained_epsilon - avg_baseline_epsilon
+    
+    print(f"\nAverage Epsilon Used:")
+    print(f"  Baseline: {avg_baseline_epsilon:.2f}")
+    print(f"  Constrained: {avg_constrained_epsilon:.2f}")
+    print(f"  Difference: {avg_diff_epsilon:+.2f}")
+    
+    # Average total magnitude
+    avg_baseline_mag = sum(r['baseline'].get('total_perturbation_magnitude', 0) for r in all_special_results.values()) / total
+    avg_constrained_mag = sum(r['constrained'].get('total_perturbation_magnitude', 0) for r in all_special_results.values()) / total
+    avg_diff_mag = avg_constrained_mag - avg_baseline_mag
+    
+    print(f"\nAverage Total Perturbation Magnitude:")
+    print(f"  Baseline: {avg_baseline_mag:.4f}")
+    print(f"  Constrained: {avg_constrained_mag:.4f}")
+    print(f"  Difference: {avg_diff_mag:+.4f} ({(avg_diff_mag/avg_baseline_mag)*100:+.1f}%)")
+    
+    # Special node usage stats
+    special_used_count = sum(1 for r in all_special_results.values() if r['baseline'].get('special_node_used', False))
+    print(f"\nSpecial Node Usage in Baseline:")
+    print(f"  Used: {special_used_count}/{total} ({special_used_count/total*100:.1f}%)")
+    print(f"  Not used: {total - special_used_count}/{total} ({(total - special_used_count)/total*100:.1f}%)")
+
+print("="*80)
 
 # %%
-# =============================================================================
-# Quick Test: Run on a single input to verify output
-# =============================================================================
-
-# TEST_PROMPT = [1, "The capital of France is"]
-# TEST_EPSILON = 1.0
-
-# print("Running quick test (gradient-based swap attack)...")
-# result = run_swap_attack_workflow(
-#     model=model,
-#     tokenizer=tokenizer,
-#     string_input=TEST_PROMPT,
-#     epsilon=TEST_EPSILON,
-#     filename="test_swap_attack.csv",
-# )
-# print("\nTest complete! Check for output.")
 
 
-# %%
+
 
 
 
