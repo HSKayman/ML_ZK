@@ -3,6 +3,6 @@
 !Experiment_6_BG/*.csv
 !Experiment_6_BG_v2/*.csv
 !ZK_LLM/*.csv
-!PerturbAttack/*.csv
+!PerturbAttackForDelta/*.csv
 **/*.md
 !Archive/SwapAttackInjectLlama/boundary_analysis_summary.csv
