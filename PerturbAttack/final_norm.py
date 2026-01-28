@@ -124,10 +124,8 @@ def rank_neurons_by_alignment(
     gradient: torch.Tensor,
     W: torch.Tensor
 ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
-    # Rank neurons by alignment: gradient sensitivity weighted by W column norms
-    # gradient is [hidden_size], W is [vocab_size, hidden_size]
-    # W[:,i] column norm tells us how much neuron i affects outputs
     
+   # Fix here 
     w_col_norms = torch.norm(W, dim=0)  # [hidden_size]
     projections = gradient * w_col_norms  # [hidden_size]
     

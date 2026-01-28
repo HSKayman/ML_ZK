@@ -508,7 +508,7 @@ def run_gradient_swap_attack(
 
 # %%W
 # =============================================================================
-# Main Workflow: Gradient-Based Swap Attack (soundness.pdf Algorithm 1)
+# Main Workflow: Gradient-Based Swap Attack 
 # =============================================================================
 
 def run_swap_attack_workflow(
@@ -519,7 +519,7 @@ def run_swap_attack_workflow(
     filename: str = "gradient_swap_attack_results.csv",
 ) -> Dict[str, Any]:
 
-    # Finds the minimum number of neurons to perturb (with max perturbation ε each)
+    # Finds the minimum number of neurons to perturb 
     #to swap the top-1 and top-2 predictions using gradient-based neuron ranking.
 
     input_id, input_text = string_input
