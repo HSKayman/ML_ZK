@@ -17,7 +17,7 @@ from typing import List, Dict, Any, Optional, Tuple
 
 # %%
 # %%
-DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+DEVICE = torch.device('cpu')#'cuda' if torch.cuda.is_available() else 'cpu')
 MODEL_PATH = "meta-llama/Llama-2-7b-chat-hf"
 print(f"Using device: {DEVICE}")
 
@@ -798,12 +798,16 @@ sample_texts = [
 # =============================================================================
 # Run Special Node Monitoring Experiments
 # =============================================================================
+# get date
+from datetime import datetime
+date_of_run = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+print(f"Experiment date: {date_of_run}")
 
 # Configuration for Special Node Experiments
 USE_ADAPTIVE_EPSILON = True  # Increase epsilon until output changes
 EPSILON_VALUES = [i*0.1 for i in range(1,1000,1)]  # Try these epsilon values
-OUTPUT_FILE_SPECIAL = "./gradient_swap_attack_special_node_results.csv"
-max_neurons_list = [ i for i in range(10,300,10)]
+OUTPUT_FILE_SPECIAL = f"./gradient_swap_attack_special_node_results_{date_of_run}.csv"
+max_neurons_list = [ i for i in range(1,4096,1)]
 # Store results
 all_special_results = {}
 
