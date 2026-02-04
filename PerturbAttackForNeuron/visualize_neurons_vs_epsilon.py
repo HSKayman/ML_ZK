@@ -28,6 +28,11 @@ COLORS = {
 
 df = pd.read_csv("./PerturbAttackForNeuron/gradient_swap_attack_special_node_results_2026-01-29_15-10-39.csv")
 print(f"Loaded {len(df)} rows")
+
+# Filter to keep only rows where both baseline and constrained attacks succeeded
+df_original_len = len(df)
+df = df[(df['baseline_success'] == True) & (df['constrained_success'] == True)]
+print(f"After filtering for successful attacks: {len(df)} rows ({len(df)/df_original_len*100:.1f}%)")
 print(f"Unique inputs: {df['input_id'].nunique()}")
 
 # %%

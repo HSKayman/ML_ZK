@@ -27,10 +27,17 @@ COLORS = {
 # Load Data
 # =============================================================================
 
-def load_data(csv_path="gradient_swap_attack_special_node_results.csv"):
+def load_data(csv_path="gradient_swap_attack_special_node_results.csv", filter_success=True):
     """Load and prepare the attack results data."""
     df = pd.read_csv(csv_path)
     print(f"Loaded {len(df)} rows from {csv_path}")
+    
+    if filter_success:
+        # Filter to keep only rows where both baseline and constrained attacks succeeded
+        df_filtered = df[(df['baseline_success'] == True) & (df['constrained_success'] == True)]
+        print(f"After filtering for successful attacks: {len(df_filtered)} rows ({len(df_filtered)/len(df)*100:.1f}%)")
+        df = df_filtered
+    
     print(f"Unique input_ids: {df['input_id'].nunique()}")
     print(f"Allowed neurons range: {df['allowed_neurons'].min()} - {df['allowed_neurons'].max()}")
     return df
