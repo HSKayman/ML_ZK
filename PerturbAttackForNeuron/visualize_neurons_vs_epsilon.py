@@ -26,7 +26,7 @@ COLORS = {
 # Load Data
 # =============================================================================
 
-df = pd.read_csv("gradient_swap_attack_special_node_results.csv")
+df = pd.read_csv("./PerturbAttackForNeuron/gradient_swap_attack_special_node_results_2026-01-29_15-10-39.csv")
 print(f"Loaded {len(df)} rows")
 print(f"Unique inputs: {df['input_id'].nunique()}")
 
