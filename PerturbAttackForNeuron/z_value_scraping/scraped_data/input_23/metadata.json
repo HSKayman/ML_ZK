@@ -1,0 +1,32 @@
+{
+  "input_id": 23,
+  "input_text": "Photosynthesis converts carbon dioxide and water into",
+  "seq_len": 13,
+  "hidden_size": 4096,
+  "special_node_idx": 633,
+  "special_node_score": 0.05221713334321976,
+  "top_k_tokens": [
+    "gl",
+    "organ",
+    "o",
+    "sugar",
+    "energy",
+    "sug",
+    "chemical",
+    "a",
+    "food",
+    "car"
+  ],
+  "top_k_probs": [
+    0.7723700404167175,
+    0.0785801112651825,
+    0.04046855866909027,
+    0.032200902700424194,
+    0.019327405840158463,
+    0.01628025993704796,
+    0.0076607512310147285,
+    0.0056890626437962055,
+    0.0054565127938985825,
+    0.004783261567354202
+  ]
+}

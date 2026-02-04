@@ -1,0 +1,32 @@
+{
+  "input_id": 3,
+  "input_text": "The process of photosynthesis occurs in",
+  "seq_len": 9,
+  "hidden_size": 4096,
+  "special_node_idx": 1573,
+  "special_node_score": 0.10177794843912125,
+  "top_k_tokens": [
+    "the",
+    "special",
+    "two",
+    "plant",
+    "which",
+    "plants",
+    "organ",
+    "cells",
+    "a",
+    "ch"
+  ],
+  "top_k_probs": [
+    0.7385081052780151,
+    0.09721193462610245,
+    0.049857497215270996,
+    0.01439628191292286,
+    0.013450122438371181,
+    0.012739835307002068,
+    0.010854123160243034,
+    0.0078042251989245415,
+    0.006981918588280678,
+    0.005752379074692726
+  ]
+}

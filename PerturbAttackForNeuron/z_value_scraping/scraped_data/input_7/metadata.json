@@ -1,0 +1,32 @@
+{
+  "input_id": 7,
+  "input_text": "The Great Wall of China was built to",
+  "seq_len": 9,
+  "hidden_size": 4096,
+  "special_node_idx": 1415,
+  "special_node_score": 0.09038811922073364,
+  "top_k_tokens": [
+    "protect",
+    "keep",
+    "prevent",
+    "help",
+    "be",
+    "control",
+    "stop",
+    "defend",
+    "guard",
+    ":"
+  ],
+  "top_k_probs": [
+    0.5322706699371338,
+    0.3652229607105255,
+    0.022240934893488884,
+    0.0116775743663311,
+    0.011244617402553558,
+    0.008798981085419655,
+    0.007661108858883381,
+    0.00582476332783699,
+    0.004021389409899712,
+    0.0035336592700332403
+  ]
+}

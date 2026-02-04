@@ -1,0 +1,6 @@
+{
+  "hidden_size": 4096,
+  "vocab_size": 32000,
+  "num_hidden_layers": 32,
+  "rms_norm_eps": 1e-05
+}
