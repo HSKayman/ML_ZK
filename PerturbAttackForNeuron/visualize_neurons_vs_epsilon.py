@@ -26,7 +26,7 @@ COLORS = {
 # Load Data
 # =============================================================================
 
-df = pd.read_csv("./PerturbAttackForNeuron/gradient_swap_attack_special_node_results_2026-01-29_15-10-39.csv")
+df = pd.read_csv("./PerturbAttackForNeuron/gradient_swap_attack_optimized_2026-02-12_17-48-41.csv")
 print(f"Loaded {len(df)} rows")
 
 # Filter to keep only rows where both baseline and constrained attacks succeeded

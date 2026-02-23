@@ -393,13 +393,10 @@ def run_optimized_swap_attack(
     cn_indices, cn_scores, cn_signs = rank_neurons_by_alignment(gradient, W, [special_node_idx])
 
     # --- Nested epsilon x neuron loop (the core optimization) ---
-    # Use KL divergence against the circle target distribution as the success criterion.
-    target_probs_device = target_probs.to(z.device)
-    target_log_probs = target_probs_device.log()
+    # Use KL divergence from the original distribution as the success criterion.
+    original_probs_device = original_probs.to(z.device)
 
     def find_swap_points(sorted_indices, sorted_scores, signs):
-        # For each epsilon, greedily add neurons and check if perturbed probs
-        # are close enough to the circle target (KL divergence < threshold).
         results = []
         for epsilon in epsilon_values:
             z_mod = z.clone()
@@ -414,15 +411,13 @@ def run_optimized_swap_attack(
                 perturbed.append(neuron_idx)
                 z_mod_norm = norm_layer(z_mod)
                 new_logits = F.linear(z_mod_norm, W, bias)
-                # KL divergence between perturbed probs and circle target
                 new_log_probs = F.log_softmax(new_logits, dim=-1)
-                kl_to_target = F.kl_div(new_log_probs, target_probs_device, reduction='sum', log_target=False)
-                # Success: perturbed distribution is close enough to the circle target
-                if kl_to_target < 0.01:
+                kl_from_original = F.kl_div(new_log_probs, original_probs_device, reduction='sum', log_target=False)
+                if kl_from_original > 0.1:
                     results.append({
                         'epsilon': epsilon, 'success': True,
                         'num_neurons': len(perturbed),
-                        'kl_to_target': kl_to_target.item(),
+                        'kl_from_original': kl_from_original.item(),
                         'distances': compute_all_distances(original_logits, new_logits),
                         'top3': get_top_k_predictions(new_logits, tokenizer, k=3),
                         'special_node_used': special_node_idx in perturbed,
@@ -435,11 +430,11 @@ def run_optimized_swap_attack(
                 z_mod_norm = norm_layer(z_mod)
                 final_logits = F.linear(z_mod_norm, W, bias)
                 new_log_probs = F.log_softmax(final_logits, dim=-1)
-                kl_to_target = F.kl_div(new_log_probs, target_probs_device, reduction='sum', log_target=False)
+                kl_from_original = F.kl_div(new_log_probs, original_probs_device, reduction='sum', log_target=False)
                 results.append({
                     'epsilon': epsilon, 'success': False,
                     'num_neurons': len(perturbed),
-                    'kl_to_target': kl_to_target.item(),
+                    'kl_from_original': kl_from_original.item(),
                     'distances': compute_all_distances(original_logits, final_logits),
                     'top3': get_top_k_predictions(final_logits, tokenizer, k=3),
                     'special_node_used': special_node_idx in perturbed,

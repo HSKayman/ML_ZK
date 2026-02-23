@@ -483,7 +483,7 @@ def create_summary_table(df):
 
 if __name__ == "__main__":
     # Load data
-    df = load_data("./PerturbAttackForNeuron/gradient_swap_attack_special_node_results_2026-01-29_15-10-39.csv")
+    df = load_data("./PerturbAttackForNeuron/gradient_swap_attack_optimized_2026-02-12_17-48-41.csv")
     
     # Print statistical summary
     print_statistical_summary(df)
