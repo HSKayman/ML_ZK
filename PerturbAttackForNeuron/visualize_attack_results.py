@@ -27,7 +27,7 @@ COLORS = {
 # Load Data
 # =============================================================================
 
-def load_data(csv_path="gradient_swap_attack_special_node_results.csv", filter_success=True):
+def load_data(csv_path="gradient_swap_attack_optimized_2026-02-22_21-10-31.csv", filter_success=True):
     """Load and prepare the attack results data."""
     df = pd.read_csv(csv_path)
     print(f"Loaded {len(df)} rows from {csv_path}")
@@ -483,7 +483,7 @@ def create_summary_table(df):
 
 if __name__ == "__main__":
     # Load data
-    df = load_data("./PerturbAttackForNeuron/gradient_swap_attack_optimized_2026-02-12_17-48-41.csv")
+    df = load_data("./PerturbAttackForNeuron/gradient_swap_attack_optimized_2026-02-22_21-10-31_only_changed_top1.csv")
     
     # Print statistical summary
     print_statistical_summary(df)
