@@ -1,3 +1,5 @@
+"""Visualizes ResNet v3 activation divergences for trace separation.
+"""
 # %%
 import torch
 import torch.nn as nn

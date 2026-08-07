@@ -1,3 +1,5 @@
+"""Chunked CSV aggregator that summarizes swap-attack original vs reconstructed runs.
+"""
 import pandas as pd
 import numpy as np
 from tqdm import tqdm

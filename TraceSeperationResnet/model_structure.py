@@ -1,3 +1,5 @@
+"""ResNet model factory, preprocessing, train/eval helpers for trace-separation experiments.
+"""
 import torch
 import torch.nn as nn
 from torchvision import transforms

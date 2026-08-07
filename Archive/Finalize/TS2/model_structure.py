@@ -1,3 +1,5 @@
+"""Model utilities for Finalize TS2 ResNet trace-separation experiments.
+"""
 import torch
 import torch.nn as nn
 from torchvision import transforms

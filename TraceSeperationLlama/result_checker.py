@@ -1,3 +1,5 @@
+"""Pass/fail checker for Llama trace-separation result tables.
+"""
 import pandas as pd
 import numpy as np
 from tqdm import tqdm

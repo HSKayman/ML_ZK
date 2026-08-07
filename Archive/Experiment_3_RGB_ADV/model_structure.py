@@ -1,3 +1,5 @@
+"""BCNN model plus train/eval utilities for RGB adversarial Experiment 3.
+"""
 import torch
 import torch.nn as nn
 from torchvision import transforms

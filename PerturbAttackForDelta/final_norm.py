@@ -1,3 +1,5 @@
+"""Ranks neurons by swap-gradient alignment and norms needed for logit/token swaps (delta focus).
+"""
 # %%
 import torch
 import torch.nn as nn

@@ -1,3 +1,6 @@
+"""Llama neuron perturbation attack.
+Ranks special nodes, applies epsilon-bounded edits, and evaluates token swaps.
+"""
 # %%
 import torch
 import torch.nn as nn

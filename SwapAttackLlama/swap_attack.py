@@ -1,3 +1,5 @@
+"""Llama swap attack: builds malicious logits, hooks layers, and compares reconstructed activations.
+"""
 # %%
 import torch
 import torch.nn as nn

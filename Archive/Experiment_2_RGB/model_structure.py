@@ -1,3 +1,5 @@
+"""CNN architecture definition for the RGB Experiment 2 pipeline.
+"""
 import torch
 import torch.nn as nn
 import torch.optim as optim

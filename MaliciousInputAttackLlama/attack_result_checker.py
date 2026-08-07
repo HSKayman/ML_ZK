@@ -1,3 +1,5 @@
+"""Quick pass/fail checker for Llama malicious-input attack result tables.
+"""
 import pandas as pd
 import numpy as np
 from tqdm import tqdm

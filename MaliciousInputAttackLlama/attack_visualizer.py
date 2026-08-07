@@ -1,3 +1,5 @@
+"""Visualizes Llama malicious-input attack activation mismatches across layers.
+"""
 
 import numpy as np
 import pandas as pd

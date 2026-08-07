@@ -1,3 +1,5 @@
+"""CNN/ResNet model utilities for Finalize completeness (formula validation).
+"""
 import torch
 import torch.nn as nn
 from torchvision import transforms

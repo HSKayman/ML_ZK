@@ -1,3 +1,5 @@
+"""Llama swap-attack script generating malicious outputs and activation-difference tables.
+"""
 # %%
 import torch
 import torch.nn as nn

@@ -1,3 +1,5 @@
+"""Parses Llama trace-separation result CSVs by transformer block and component.
+"""
 
 import numpy as np
 import pandas as pd

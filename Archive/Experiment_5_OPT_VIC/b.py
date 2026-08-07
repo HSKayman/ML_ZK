@@ -1,4 +1,6 @@
-"""0. General libraries"""
+"""Optimization/victim experiment helpers (gradients, one-model runs, epsilon exploration).
+"""
+
 import pandas as pd
 import numpy as np
 

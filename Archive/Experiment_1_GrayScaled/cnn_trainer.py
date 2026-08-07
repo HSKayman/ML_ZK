@@ -1,3 +1,5 @@
+"""Defines/trains a simple grayscale CNN used in Experiment 1.
+"""
 
 #!pip install torch 
 #!pip install torchsummary

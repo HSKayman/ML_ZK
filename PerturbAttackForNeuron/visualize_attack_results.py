@@ -1,3 +1,5 @@
+"""Plots neuron-perturbation attack success, epsilon stats, and per-input heatmaps.
+"""
 # %%
 import pandas as pd
 import numpy as np

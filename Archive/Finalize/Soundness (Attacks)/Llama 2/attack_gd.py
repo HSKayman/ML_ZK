@@ -1,3 +1,5 @@
+"""Llama-2 gradient soundness attack script generating activation-difference stats.
+"""
 # %%
 import torch
 import torch.nn as nn

@@ -1,3 +1,5 @@
+"""Earlier Llama swap-attack script: malicious logits plus internal-state reconstruction.
+"""
 # %%
 import torch
 import torch.nn.functional as F

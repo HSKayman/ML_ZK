@@ -1,3 +1,6 @@
+"""Parses Llama malicious-input attack CSVs.
+Groups errors by transformer block and component type.
+"""
 
 import numpy as np
 import pandas as pd

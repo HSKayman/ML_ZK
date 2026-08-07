@@ -1,3 +1,5 @@
+"""Model utilities for Finalize TS1 CNN/ResNet trace-separation experiments.
+"""
 import torch
 import torch.nn as nn
 from torchvision import transforms

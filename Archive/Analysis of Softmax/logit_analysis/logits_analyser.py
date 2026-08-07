@@ -1,3 +1,5 @@
+"""Analyzes and saves Llama prompt logits / top-k predictions for softmax studies.
+"""
 # %%
 import torch
 import torch.nn.functional as F

@@ -1,3 +1,5 @@
+"""Runs Llama logit-swap attacks and checks reconstructed activations against the model.
+"""
 # %%
 import torch
 import torch.nn as nn

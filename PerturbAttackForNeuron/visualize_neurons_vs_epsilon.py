@@ -1,3 +1,5 @@
+"""Plots neurons-vs-epsilon curves for swap attacks (hyperbolic fits and comparisons).
+"""
 # %%
 import pandas as pd
 import numpy as np

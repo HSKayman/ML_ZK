@@ -1,3 +1,6 @@
+"""Llama-2 malicious-input attack script.
+Hooks layers, reconstructs activations, and measures calculation vs model outputs.
+"""
 # %%
 import torch
 import torch.nn as nn

@@ -1,3 +1,5 @@
+"""Plots ResNet v2 activation divergences (JS and related metrics).
+"""
 # %%
 import torch
 import torch.nn as nn

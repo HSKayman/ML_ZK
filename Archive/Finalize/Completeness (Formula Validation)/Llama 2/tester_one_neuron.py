@@ -1,3 +1,5 @@
+"""Llama-2 completeness script: weight analysis plus single-neuron activation checks.
+"""
 # %%
 import torch
 import torch.nn.functional as F

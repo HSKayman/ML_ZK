@@ -1,3 +1,5 @@
+"""Defines the custom BCNN model, training helpers, and metric/confusion-matrix utilities.
+"""
 import torch
 import torch.nn as nn
 from torchvision import transforms

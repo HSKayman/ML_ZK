@@ -1,3 +1,5 @@
+"""Extracts columns (inputs, z-values, softmax) from perturbation-attack CSVs for delta analysis.
+"""
 # %%
 import pandas as pd
 import numpy as np

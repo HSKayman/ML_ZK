@@ -1,3 +1,5 @@
+"""Scripted ResNet activation-hook tester for trace-separation experiments.
+"""
 # %%
 import torch
 import torch.nn as nn

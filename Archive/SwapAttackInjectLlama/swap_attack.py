@@ -1,3 +1,5 @@
+"""Llama injected-perturbation swap attack with distance metrics and activation hooks.
+"""
 # %%
 import torch
 import torch.nn as nn

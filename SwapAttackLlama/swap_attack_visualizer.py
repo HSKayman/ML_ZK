@@ -1,3 +1,5 @@
+"""Visualizes Llama swap-attack layer errors and activation/logit discrepancies.
+"""
 
 import numpy as np
 import pandas as pd

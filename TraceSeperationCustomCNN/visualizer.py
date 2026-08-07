@@ -1,3 +1,5 @@
+"""Visualizes custom-CNN activation divergences (e.g., JS divergence) for trace separation.
+"""
 # %%
 import torch
 import torch.nn as nn

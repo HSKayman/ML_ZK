@@ -1,3 +1,5 @@
+"""Scripted activation-hook tester for custom CNN trace-separation experiments.
+"""
 # %%
 import torch
 import torch.nn as nn

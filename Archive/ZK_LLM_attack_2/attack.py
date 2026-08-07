@@ -1,3 +1,5 @@
+"""Llama-2-7B ZK-LLM attack script: activation diffs plus multi-layer visualizations.
+"""
 # %%
 import torch
 import torch.nn as nn

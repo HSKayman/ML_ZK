@@ -1,3 +1,5 @@
+"""Computes Llama weight differences and pattern summaries for trace-separation studies.
+"""
 # %%
 import torch
 import torch.nn.functional as F

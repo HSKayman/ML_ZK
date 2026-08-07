@@ -1,3 +1,5 @@
+"""ResNet v2 model/training utilities for refined trace-separation experiments.
+"""
 import torch
 import torch.nn as nn
 from torchvision import transforms

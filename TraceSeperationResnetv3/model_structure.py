@@ -1,3 +1,5 @@
+"""ResNet v3 model/training utilities for the latest trace-separation setup.
+"""
 import torch
 import torch.nn as nn
 from torchvision import transforms

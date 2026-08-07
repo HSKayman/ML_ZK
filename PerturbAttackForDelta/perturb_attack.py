@@ -1,3 +1,6 @@
+"""Llama neuron perturbation attack targeting output swaps.
+Finds minimal neuron sets and distance metrics for delta budgets.
+"""
 # %%
 import torch
 import torch.nn as nn

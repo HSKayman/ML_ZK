@@ -1,3 +1,5 @@
+"""Optimized Llama neuron perturbation attack script with activation capture and swap metrics.
+"""
 # %%
 import torch
 import torch.nn as nn

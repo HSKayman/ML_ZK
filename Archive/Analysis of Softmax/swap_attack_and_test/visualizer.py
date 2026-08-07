@@ -1,3 +1,5 @@
+"""Plots failed swap-check summaries (max errors and top failing layers).
+"""
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt

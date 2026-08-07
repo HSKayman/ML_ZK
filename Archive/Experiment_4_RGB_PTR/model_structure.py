@@ -1,3 +1,5 @@
+"""ResNet/CNN model helpers for Experiment 4 RGB pointer/perturbation work.
+"""
 import torch
 import torch.nn as nn
 from torchvision import transforms

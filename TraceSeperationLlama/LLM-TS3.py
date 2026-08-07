@@ -1,3 +1,5 @@
+"""Llama TS3 script for activation tracing and calculation-vs-model output analysis.
+"""
 # %%
 import torch
 import torch.nn.functional as F

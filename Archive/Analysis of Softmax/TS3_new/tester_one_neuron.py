@@ -1,3 +1,5 @@
+"""TS3 Llama script combining weight analysis with single-neuron activation checks.
+"""
 # %%
 import torch
 import torch.nn.functional as F

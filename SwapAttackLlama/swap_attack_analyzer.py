@@ -1,3 +1,5 @@
+"""Analyzes Llama swap-attack CSVs by block/component to locate largest reconstruction errors.
+"""
 
 import numpy as np
 import pandas as pd
